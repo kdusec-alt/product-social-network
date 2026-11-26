@@ -244,7 +244,7 @@ async function handleApi(request,env,url) {
       const other=await env.DB.prepare('SELECT id FROM users WHERE id=?').bind(withId).first();if(!other)return err('找不到成員',404);
       return json((await env.DB.prepare(`SELECT m.id,m.sender_id,m.recipient_id,m.body,m.created_at,s.display_name sender_name,s.unit sender_unit,r.display_name recipient_name,r.unit recipient_unit,a.message_id photo_id,a.name photo_name
         FROM direct_messages m JOIN users s ON s.id=m.sender_id JOIN users r ON r.id=m.recipient_id LEFT JOIN direct_message_attachments a ON a.message_id=m.id
-        WHERE (m.sender_id=? AND m.recipient_id=?) OR (m.sender_id=? AND m.recipient_id=?) ORDER BY m.created_at ASC LIMIT 300`).bind(user.id,withId,withId,user.id).all()).results);
+        WHERE (m.sender_id=? AND m.recipient_id=?) OR (m.sender_id=? AND m.recipient_id=?) ORDER BY m.created_at DESC LIMIT 300`).bind(user.id,withId,withId,user.id).all()).results.reverse());
     }
     return json((await env.DB.prepare(`SELECT m.id,m.sender_id,m.recipient_id,m.body,m.created_at,s.display_name sender_name,s.unit sender_unit,r.display_name recipient_name,r.unit recipient_unit,a.message_id photo_id,a.name photo_name
       FROM direct_messages m JOIN users s ON s.id=m.sender_id JOIN users r ON r.id=m.recipient_id LEFT JOIN direct_message_attachments a ON a.message_id=m.id

@@ -118,6 +118,7 @@ body .postPhoto img { width: 100%; max-height: 560px; object-fit: contain; }
 #vpAccountWatermark{position:fixed;inset:64px 0 0;z-index:20;pointer-events:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));grid-auto-rows:108px;overflow:hidden;opacity:.12;color:#1c2733!important}
 #vpAccountWatermark[hidden]{display:none}
 #vpAccountWatermark span{display:flex;align-items:center;justify-content:center;white-space:nowrap;transform:rotate(-22deg);font-size:17px!important;font-weight:650;letter-spacing:.12em!important;color:#1c2733!important}
+.chatHead #chatBack{font-size:22px;padding:4px 9px;margin-right:5px}.chatHead #chatTitle{flex:1}.chatHistoryTitle{margin:12px 0 5px;font-size:14px!important}.chatRecent{display:grid;width:100%;text-align:left;gap:3px;padding:10px;border:0;border-bottom:1px solid #dbe4ed;background:#fff;cursor:pointer}.chatRecent small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#62748a!important}.chatRecent time{font-size:11px!important;color:#62748a!important}.chatPanel [hidden]{display:none!important}
 body.feedCompact .postPhoto.hasPhoto{display:block!important}
 body.feedCompact .postPhoto.vpPhotoGallery{display:grid!important}
 body.feedCompact .postPhoto.vpPhotoGallery img{display:block!important;width:100%!important;max-height:520px!important;object-fit:contain!important}

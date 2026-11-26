@@ -2,13 +2,13 @@
   const $ = selector => document.querySelector(selector);
   const safe = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const words = {
-    zh:{chat:'即時聊天',search:'搜尋成員…',message:'輸入訊息…',send:'傳送',members:'成員名單',membersTitle:'成員名單',searchStart:'搜尋成員以開始聊天',empty:'目前沒有可顯示的成員',self:'本人',chatAction:'聊天',invited:'已邀請',me:'我',login:'登入後可搜尋並聯絡授權成員。',needLogin:'請先登入後使用聊天',noMessages:'尚無訊息，傳送第一則訊息',photo:'查看照片'},
-    en:{chat:'Chat',search:'Search members…',message:'Write a message…',send:'Send',members:'Members',membersTitle:'Member list',searchStart:'Search for a member to start chatting',empty:'No members to display',self:'You',chatAction:'Chat',invited:'Invited',me:'Me',login:'Sign in to search and contact authorized members.',needLogin:'Please sign in to use chat',noMessages:'No messages yet. Send the first one.',photo:'View photo'},
-    vi:{chat:'Trò chuyện trực tiếp',search:'Tìm thành viên…',message:'Nhập tin nhắn…',send:'Gửi',members:'Thành viên',membersTitle:'Danh sách thành viên',searchStart:'Tìm thành viên để bắt đầu trò chuyện',empty:'Không có thành viên để hiển thị',self:'Bạn',chatAction:'Trò chuyện',invited:'Đã mời',me:'Tôi',login:'Đăng nhập để tìm và liên hệ thành viên được cấp quyền.',needLogin:'Vui lòng đăng nhập để sử dụng trò chuyện',noMessages:'Chưa có tin nhắn. Hãy gửi tin nhắn đầu tiên.',photo:'Xem ảnh'}
+    zh:{chat:'即時聊天',search:'搜尋成員…',message:'輸入訊息…',send:'傳送',members:'成員名單',membersTitle:'成員名單',searchStart:'搜尋成員，或從下方聊天紀錄繼續對話',history:'聊天紀錄',empty:'目前沒有可顯示的成員',self:'本人',chatAction:'聊天',invited:'已邀請',me:'我',login:'登入後可搜尋並聯絡授權成員。',needLogin:'請先登入後使用聊天',noMessages:'尚無訊息，傳送第一則訊息',photo:'查看照片'},
+    en:{chat:'Chat',search:'Search members…',message:'Write a message…',send:'Send',members:'Members',membersTitle:'Member list',searchStart:'Search members or continue a conversation below',history:'Conversations',empty:'No members to display',self:'You',chatAction:'Chat',invited:'Invited',me:'Me',login:'Sign in to search and contact authorized members.',needLogin:'Please sign in to use chat',noMessages:'No messages yet. Send the first one.',photo:'View photo'},
+    vi:{chat:'Trò chuyện trực tiếp',search:'Tìm thành viên…',message:'Nhập tin nhắn…',send:'Gửi',members:'Thành viên',membersTitle:'Danh sách thành viên',searchStart:'Tìm thành viên hoặc tiếp tục trò chuyện bên dưới',history:'Lịch sử trò chuyện',empty:'Không có thành viên để hiển thị',self:'Bạn',chatAction:'Trò chuyện',invited:'Đã mời',me:'Tôi',login:'Đăng nhập để tìm và liên hệ thành viên được cấp quyền.',needLogin:'Vui lòng đăng nhập để sử dụng trò chuyện',noMessages:'Chưa có tin nhắn. Hãy gửi tin nhắn đầu tiên.',photo:'Xem ảnh'}
   };
   const text = key => (words[uiLang] || words.zh)[key] || words.zh[key] || key;
   const demoIds = new Set(['demo:tino','demo:tino1','demo:tino2','demo:tino3']);
-  let current = null, people = [], selected = null, thread = [], busy = false;
+  let current = null, people = [], selected = null, thread = [], recent = [], busy = false;
   async function api(path, options = {}) {
     const response = await fetch(path, {credentials:'same-origin', ...options, headers:{...(options.body ? {'content-type':'application/json'} : {}), ...options.headers}});
     const data = await response.json().catch(() => ({}));
@@ -30,7 +30,34 @@
   function renderContacts() {
     const query = ($('#chatSearch')?.value || '').trim().toLocaleLowerCase();
     const visible = people.filter(person => person.id && person.id !== current?.id && person.access_status !== 'invited' && `${person.name} ${person.nickname||''} ${person.unit} ${person.email}`.toLocaleLowerCase().includes(query));
-    if ($('#chatContacts')) $('#chatContacts').innerHTML = query ? peopleRows(visible) : `<p class="chatEmpty">${text('searchStart')}</p>`;
+    if ($('#chatContacts')) $('#chatContacts').innerHTML = query ? peopleRows(visible) : `<p class="chatEmpty">${text('searchStart')}</p>${recent.length ? `<h3 class="chatHistoryTitle">${text('history')}</h3>` + recent.map(message => {
+      const id = message.sender_id === current?.id ? message.recipient_id : message.sender_id;
+      const person = people.find(item => item.id === id);
+      if (!person) return '';
+      return `<button class="chatRecent" type="button" data-chat-person="${safe(id)}"><b>${safe(person.nickname || person.name)}</b><small>${safe(message.body).slice(0,90)}</small><time>${safe(new Date(message.created_at).toLocaleString())}</time></button>`;
+    }).join('') : ''}`;
+  }
+  async function refreshRecent() {
+    if (!current) return;
+    const rows = await api('/api/messages');
+    const seen = new Set();
+    recent = rows.filter(message => {
+      const id = message.sender_id === current.id ? message.recipient_id : message.sender_id;
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+    if (!selected) renderContacts();
+  }
+  function showContacts() {
+    selected = null;
+    $('#chatTitle').textContent = text('chat');
+    $('#chatBack').hidden = true;
+    $('#chatSearch').hidden = false;
+    $('#chatContacts').hidden = false;
+    $('#chatThread').hidden = true;
+    $('#chatForm').hidden = true;
+    renderContacts();
   }
   async function refreshPeople() {
     if (!current) return;
@@ -43,6 +70,9 @@
     if (!person || !current) return;
     selected = person;
     $('#chatPanel').hidden = false;
+    $('#chatBack').hidden = false;
+    $('#chatSearch').hidden = true;
+    $('#chatContacts').hidden = true;
     $('#chatThread').hidden = false;
     $('#chatForm').hidden = false;
     $('#chatTitle').textContent = `${text('chat')} · ${person.name}`;
@@ -52,7 +82,9 @@
   async function refreshThread() {
     if (!selected || !current || busy) return;
     try {
-      const rows = await api('/api/messages?with=' + encodeURIComponent(selected.id));
+      const personId = selected.id;
+      const rows = await api('/api/messages?with=' + encodeURIComponent(personId));
+      if (selected?.id !== personId) return;
       thread = rows;
       $('#chatThread').innerHTML = rows.length ? rows.map(message => `<div class="chatBubble ${message.sender_id === current.id ? 'mine' : ''}"><small>${safe(message.sender_name)} · ${new Date(message.created_at).toLocaleString()}</small>${safe(message.body)}${message.photo_id ? `<br><a href="/api/message-files/${encodeURIComponent(message.photo_id)}" target="_blank" rel="noopener">${text('photo')}</a>` : ''}</div>`).join('') : `<div class="chatEmpty">${text('noMessages')}</div>`;
       $('#chatThread').scrollTop = $('#chatThread').scrollHeight;
@@ -70,7 +102,7 @@
           dialog.style.cssText='max-width:480px;width:90%;border:1px solid #dbe4ed;border-radius:12px;padding:24px';
           const title=document.createElement('h3');title.textContent=button.textContent;
           const details=document.createElement('p');details.style.whiteSpace='pre-line';
-          const mib=value=>value===null?'Unknown':(Number(value)/1048576).toFixed(2)+' MiB';
+          const mib=value=>(Number(value)/1048576).toFixed(2)+' MiB';
           const copy=uiLang==='en'?['Stored objects','Database size','Single item limit','Close']:uiLang==='vi'?['Dữ liệu lưu trữ','Dung lượng cơ sở dữ liệu','Giới hạn mỗi mục','Đóng']:['共用物件用量','資料庫用量','單一項目上限','關閉'];
           details.textContent=data.backend==='d1'?`${copy[0]}: ${mib(data.objectBytes)} / ${mib(data.objectBudgetBytes)}\n${copy[1]}: ${mib(data.databaseBytes)}\n${copy[2]}: ${mib(data.objectLimitBytes)}`:'R2';
           const close=document.createElement('button');close.textContent=copy[3];close.onclick=()=>dialog.close();
@@ -95,6 +127,7 @@
       window.dispatchEvent(new Event("profileIdentity"));
       try {
         await refreshPeople();
+        await refreshRecent();
       } catch (error) {
         // Member/profile storage failures do not invalidate a verified session.
         const list = $('#memberList');
@@ -115,17 +148,15 @@
   document.addEventListener('click', async event => {
     const launch = event.target.closest('#chatLauncher');
     const close = event.target.closest('#chatClose');
+    const back = event.target.closest('#chatBack');
     const open = event.target.closest('[data-chat-person]');
     try {
       if (launch) {
         if (!current) return toast(text('needLogin'));
-        selected = null;
-        $('#chatTitle').textContent = text('chat');
-        $('#chatThread').hidden = true;
-        $('#chatForm').hidden = true;
         $('#chatPanel').hidden = !$('#chatPanel').hidden;
-        if (!$('#chatPanel').hidden) { await refreshPeople(); $('#chatSearch').focus(); }
+        if (!$('#chatPanel').hidden) { showContacts(); await refreshPeople(); await refreshRecent(); $('#chatSearch').focus(); }
       } else if (close) $('#chatPanel').hidden = true;
+      else if (back) { showContacts(); await refreshRecent(); $('#chatSearch').focus(); }
       else if (open) await openPerson(open.dataset.chatPerson);
     } catch (error) { toast(error.message); }
   });
@@ -139,7 +170,7 @@
       $('#chatMessage').value = '';
       busy = false;
       await refreshThread();
-      await refreshPeople();
+      await refreshRecent();
     } catch (error) { toast(error.message); }
     finally { busy = false; }
   });
@@ -207,5 +238,5 @@
   };
   render();
   ensureIdentity();
-  setInterval(() => { if (current) { refreshPeople().catch(() => {}); refreshThread(); } }, 5000);
+  setInterval(() => { if (current) { refreshPeople().catch(() => {}); refreshRecent().catch(() => {}); if (!$('#chatPanel').hidden) refreshThread(); } }, 5000);
 })();

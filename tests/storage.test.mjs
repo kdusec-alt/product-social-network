@@ -39,6 +39,12 @@ assert.equal((await req('/api/classic-attachments?post=SHARE&name=big.png&mime=i
 assert.equal((await req('/api/storage','tino1')).status,403);assert.equal((await req('/api/storage','tino')).status,200);
 assert.equal((await req('/api/messages','tino','POST',{to:'demo:tino1',body:'Hello'})).status,201);
 const dm=await (await req('/api/messages?with=demo:tino','tino1')).json();assert.equal(dm[0].body,'Hello');
+assert.equal((await req('/api/messages','tino3','POST',{to:'demo:tino2',body:'Message for tino2'})).status,201);
+const recipientInbox=await (await req('/api/messages','tino2')).json();
+assert.equal(recipientInbox[0].sender_id,'demo:tino3');
+assert.equal(recipientInbox[0].body,'Message for tino2');
+assert.equal((await (await req('/api/messages?with=demo:tino3','tino2')).json())[0].body,'Message for tino2');
+assert.equal((await (await req('/api/messages','tino1')).json()).some(message=>message.body==='Message for tino2'),false);
 console.log('D1 storage passed: binary/text roundtrip, overwrite/delete quota accounting, pagination, size/quota rejection, four logins/members, shared post/attachment ACLs and direct messages');
 
 const spoof=await app.fetch(new Request('https://test.example/api/me',{headers:{'oai-authenticated-user-id':'demo:tino','oai-authenticated-user-email':'tino@paleonet.demo'}}),env);assert.equal(spoof.status,401);
