@@ -1,0 +1,216 @@
+{
+  "source_commit": "e1e0c9a597746f7ae740de925a5852e8d5daf86b",
+  "files": [
+    {
+      "path": ".env.example",
+      "bytes": 62,
+      "sha256": "32081eed63786e58459432b4ba7cee20b2b38589db1bc907e3925f9a9b60afdf"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 137,
+      "sha256": "e6ad8452c02226a4528cd5bb927fef6f15aefda79866c1105d95f4dc0462eaa7"
+    },
+    {
+      "path": ".openai/hosting.json",
+      "bytes": 82,
+      "sha256": "f9e5a786da2aa8cc78f63fb926ad11ba31c276bf36e1186c3bc49220b705b1e1"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 595,
+      "sha256": "bfcec0dc724d78bee9f9617209dbe38558efecd65d9a1088b040db126601acb5"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1877,
+      "sha256": "2e9fa520288b97bc38e48eeb5b0b0e21d38808ba9adc513283cf7a89e69c45ed"
+    },
+    {
+      "path": "classic/index.html",
+      "bytes": 139362,
+      "sha256": "6c10172118aa5e7c762d74d1649f602bfe55222bb30bfa4cfad4b2e280478aef"
+    },
+    {
+      "path": "classic/manifest.webmanifest",
+      "bytes": 374,
+      "sha256": "ce47ac8600a09fdcc0024959592387024854ba783e5cec656bd94e0f37ad79e5"
+    },
+    {
+      "path": "classic/paleo-192.png",
+      "bytes": 23848,
+      "sha256": "93a58498997fd1209c92c6e3c877e39d4d0422882d779f43a8dcdbd3efa7cc02"
+    },
+    {
+      "path": "classic/paleo-512.png",
+      "bytes": 118787,
+      "sha256": "bc6c034be264a54651dbe67e9e5d82ad7aead2a1be533a28ddcf593983947aba"
+    },
+    {
+      "path": "classic/paleo-chat.js",
+      "bytes": 11921,
+      "sha256": "74f8adf033906d764f761d36b8fc2a52b922f59dcb61dcfaf124cc05af28f090"
+    },
+    {
+      "path": "classic/paleo-checklist.css",
+      "bytes": 1436,
+      "sha256": "ba87dcb4859e4907c98f4d78f4578ef236e9cd64b0ba1829cb089c0fcb85f8d5"
+    },
+    {
+      "path": "classic/paleo-checklist.js",
+      "bytes": 10853,
+      "sha256": "b1c82b703f361a2f431854eb55dd3efceccd6b25e9850a704f0da50c38952def"
+    },
+    {
+      "path": "classic/paleo-knowledge.js",
+      "bytes": 32064,
+      "sha256": "4577f7101e74d875e3c6f75c51635383f45c1da6646f3e3c215cedb65ba4c412"
+    },
+    {
+      "path": "classic/paleo-logo.png",
+      "bytes": 666288,
+      "sha256": "8e4e449aa558aa7657f705f6a5e92a3c0653cd4bbf82f4c16f414e02de54f820"
+    },
+    {
+      "path": "classic/paleo-mail-preview.css",
+      "bytes": 2893,
+      "sha256": "25d0712f01d3e25ee713c9a348a910290151c1653a9bba99e05026d027d00e76"
+    },
+    {
+      "path": "classic/paleo-mail.js",
+      "bytes": 16138,
+      "sha256": "b78961953c3188970fe104dbf04fc40975f5d37ab2b9b3d907836c5996661119"
+    },
+    {
+      "path": "classic/paleo-msg.js",
+      "bytes": 5212,
+      "sha256": "03f7a83801d29bc74a53e672dc5071ac1f6657c109457ecc5aa7078890050d4c"
+    },
+    {
+      "path": "classic/paleo-my-work.css",
+      "bytes": 2109,
+      "sha256": "7e5e1170bd7bd1e6545ce2291ae5632ea7cc4197e8c0095545543db5a923b472"
+    },
+    {
+      "path": "classic/paleo-my-work.js",
+      "bytes": 8994,
+      "sha256": "ffb1537a2133d1f15a7dc7fd2f624594c7d7e7b5a281779685f8f564361ea32e"
+    },
+    {
+      "path": "classic/paleo-posts.js",
+      "bytes": 3880,
+      "sha256": "3624e78aebfbf7b4ea9b853ce3b3b63c66443f11eb0bc6bbbfb6107778a04326"
+    },
+    {
+      "path": "classic/paleo-sync.js",
+      "bytes": 5695,
+      "sha256": "89ba8583b9c454cadaa122d5d52367d7726a1a75d62274a7bb44805c9105fad8"
+    },
+    {
+      "path": "classic/paleo-timeline.css",
+      "bytes": 2278,
+      "sha256": "8406fc15e52406d0fba236915c8f82a81c7eefc9aca6258ac0a152a294dc11d4"
+    },
+    {
+      "path": "classic/paleo-timeline.js",
+      "bytes": 9959,
+      "sha256": "0e139a6d68c7572bad67fb37fe582affe71d046961987e885d26cff62ecc459d"
+    },
+    {
+      "path": "classic/paleo-workflow.js",
+      "bytes": 1967,
+      "sha256": "40d963e761c67238395ebaa1faf1723ec795eb643f1d4a9422ef5ada81563111"
+    },
+    {
+      "path": "classic/paleo.css",
+      "bytes": 24736,
+      "sha256": "dd9178b2c974c070d7faa20bd809a9af8abcc1753ead67df0abd054d54eba0c7"
+    },
+    {
+      "path": "classic/paleo.js",
+      "bytes": 9559,
+      "sha256": "7971aac0c74cdc2c7c515b2774417b15fc0b2cb18b90c3e8179a29507f62727c"
+    },
+    {
+      "path": "classic/profile.js",
+      "bytes": 4944,
+      "sha256": "634e61b6a34e62254a4007764cc76c4dc4b5627f702cdc21906654e80b84a5f2"
+    },
+    {
+      "path": "classic/readiness-templates.js",
+      "bytes": 112936,
+      "sha256": "1ec34ca82d3d4383b296f6e72c081499a984e271ff19ecfe4709177285a22a80"
+    },
+    {
+      "path": "classic/vp-shoe-p-logo.png",
+      "bytes": 1135656,
+      "sha256": "8c66c587cd1f183a61d2625be7689bda5f5cff34b928df53309dd01e8ab3469b"
+    },
+    {
+      "path": "drizzle/0000_paleonet.sql",
+      "bytes": 3449,
+      "sha256": "403a3ae8770c892d5f5e65974469c82476550179029b67c768be1de3580f9620"
+    },
+    {
+      "path": "drizzle/0001_demo_sessions.sql",
+      "bytes": 142,
+      "sha256": "0eb3c3d9bd8d56b2e2b58a494db2a474621174a0009d21ce6de72db2f15e63b4"
+    },
+    {
+      "path": "drizzle/0002_direct_messages.sql",
+      "bytes": 722,
+      "sha256": "510050eab352c6159449ab5a3593f34acf9eac6780325273932712e49c8f404c"
+    },
+    {
+      "path": "drizzle/meta/_journal.json",
+      "bytes": 317,
+      "sha256": "c9799f4537bbd5d8e4b212c356c340b7fbc9bdb11d734558a8b8ea2be9711aec"
+    },
+    {
+      "path": "package.json",
+      "bytes": 262,
+      "sha256": "6ebb51c1ace4787f52c73e03241c3a2a524601754ad49aae8446d4808ac2eb36"
+    },
+    {
+      "path": "scripts-build.mjs",
+      "bytes": 2181,
+      "sha256": "59309b3486beb43eebd4f029de3d31753b4ccecec29a7a266b73225340448d2c"
+    },
+    {
+      "path": "tests/backend.test.mjs",
+      "bytes": 7367,
+      "sha256": "7ec814775dc04508790128c2355090ec68523f024a509227873a692ce0db54b1"
+    },
+    {
+      "path": "ui/app.css",
+      "bytes": 20765,
+      "sha256": "540e410506fc94cd119877270bd61d7ceaaf858efa975cd3301e5ba54906546c"
+    },
+    {
+      "path": "ui/app.js",
+      "bytes": 53122,
+      "sha256": "07243430b8ee1da5dd0e754876b5b0991b2b380e8f23a21473779b2dc804d131"
+    },
+    {
+      "path": "ui/index.html",
+      "bytes": 3365,
+      "sha256": "43ba617f1908b7b8f614e5268cdfba2d238cb45238212c7cad62a2e4686ef3b1"
+    },
+    {
+      "path": "ui/manifest.webmanifest",
+      "bytes": 249,
+      "sha256": "1b15723ef4a866eb6613a63d129a3e6e31741a5ad3f028bb0a2e13067bf52c44"
+    },
+    {
+      "path": "worker/index.js",
+      "bytes": 46828,
+      "sha256": "c42a4dec09208f2f6e1034a83c2a395a3ffe521f54aab7f5ac6a238302df79e0"
+    }
+  ],
+  "excluded": [
+    "dist/ (rebuildable)",
+    "Git history",
+    "runtime user data and uploads"
+  ],
+  "verification": "npm test passed"
+}
