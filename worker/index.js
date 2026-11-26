@@ -1,3 +1,4 @@
+import { createD1Bucket, StorageError } from './storage.js';
 import { assets } from './assets.js';
 import { readinessTemplates } from './templates.js';
 import { legacySeed } from './legacy-seed.js';
@@ -15,6 +16,7 @@ async function demoLogin(request,env){const d=await body(request),account=s(d.ac
 async function userFor(request, env) {
   const demo=await demoUser(request,env);if(demo)return demo;
   if(/(?:^|;\s*)paleo_signed_out=1(?:;|$)/.test(request.headers.get('cookie')||''))return null;
+  if(env.TRUST_SITES_HEADERS!=='true')return null;
   const uid = request.headers.get('oai-authenticated-user-id');
   const email = s(request.headers.get('oai-authenticated-user-email'),320).toLowerCase();
   if (!uid || !email) return null;
@@ -79,6 +81,10 @@ async function handleApi(request,env,url) {
     const profile={nickname:nickname.trim(),avatar};
     await env.BUCKET.put(key,JSON.stringify(profile));
     return json(profile);
+  }
+  if(path==='/api/storage' && method==='GET') {
+    if(user.role!=='admin')return err('僅管理員可查看容量',403);
+    return json(env.BUCKET.stats?await env.BUCKET.stats():{backend:'r2'});
   }
   if(path==='/api/me') return json({user:{id:user.id,email:user.email,name:user.display_name,unit:user.unit,role:user.role}});
   if(path==='/api/knowledge-marks' && method==='GET') {
@@ -404,7 +410,7 @@ async function handleApi(request,env,url) {
 export default {async fetch(request,env) {
   const url=new URL(request.url);
   try {
-    if(url.pathname.startsWith('/api/'))return await handleApi(request,env,url);
+    if(url.pathname.startsWith('/api/'))return await handleApi(request,{...env,BUCKET:env.BUCKET||createD1Bucket(env.DB)},url);
     if(url.pathname==='/'||url.pathname==='/index.html')return Response.redirect(url.origin+'/classic/index.html',302);
     if(url.pathname==='/classic'||url.pathname==='/classic/')return Response.redirect(url.origin+'/classic/index.html',302);
     const path=url.pathname==='/'?'/index.html':url.pathname;
@@ -412,5 +418,5 @@ export default {async fetch(request,env) {
     const asset=assets[path];if(!asset)return new Response('Not found',{status:404});
     const bytes=Uint8Array.from(atob(asset.data),c=>c.charCodeAt(0));
     return new Response(bytes,{headers:{'content-type':asset.type,'cache-control':'no-cache','x-content-type-options':'nosniff'}});
-  } catch(e) {return err('系統暫時無法處理，請稍後重試',500);}
+  } catch(e) {if(e instanceof StorageError)return err(e.message,e.status);return err('系統暫時無法處理，請稍後重試',500);}
 }};

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "node scripts-build.mjs",
-    "test": "npm run build && node tests/backend.test.mjs"
+    "test": "npm run build && node tests/backend.test.mjs && TEST_D1_STORAGE=1 node tests/backend.test.mjs && node tests/storage.test.mjs && node tests/runtime.test.mjs",
+    "start": "node scripts/server.mjs"
   },
   "engines": {
     "node": ">=22.13.0"

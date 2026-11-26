@@ -1,5 +1,6 @@
 {
-  "source_commit": "e1e0c9a597746f7ae740de925a5852e8d5daf86b",
+  "original_sites_source_commit": "e1e0c9a597746f7ae740de925a5852e8d5daf86b",
+  "purpose": "Current source inventory after D1-only test storage and intranet runtime changes",
   "files": [
     {
       "path": ".env.example",
@@ -8,8 +9,8 @@
     },
     {
       "path": ".gitignore",
-      "bytes": 137,
-      "sha256": "e6ad8452c02226a4528cd5bb927fef6f15aefda79866c1105d95f4dc0462eaa7"
+      "bytes": 143,
+      "sha256": "cf4343bc82db29a2e57fbeb45fe8a8b0da432a4083503fd8dd47e61274079e59"
     },
     {
       "path": ".openai/hosting.json",
@@ -23,8 +24,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 1877,
-      "sha256": "2e9fa520288b97bc38e48eeb5b0b0e21d38808ba9adc513283cf7a89e69c45ed"
+      "bytes": 3184,
+      "sha256": "1f748e57b2935457f5d81958e58dbe5c4241233670ab51cf29bd6100b6d1cf51"
     },
     {
       "path": "classic/index.html",
@@ -48,8 +49,8 @@
     },
     {
       "path": "classic/paleo-chat.js",
-      "bytes": 11921,
-      "sha256": "74f8adf033906d764f761d36b8fc2a52b922f59dcb61dcfaf124cc05af28f090"
+      "bytes": 13998,
+      "sha256": "0302df7e170bdda3ea9254f988df0981458d07a4dea09704fc99c1e408bd9bb4"
     },
     {
       "path": "classic/paleo-checklist.css",
@@ -147,6 +148,11 @@
       "sha256": "8c66c587cd1f183a61d2625be7689bda5f5cff34b928df53309dd01e8ab3469b"
     },
     {
+      "path": "docs/intranet.md",
+      "bytes": 2853,
+      "sha256": "cda8c1dd9d119f2bf0d26e3a333cb7cd1357c9d8cb6b533e29bef614bec3f2ec"
+    },
+    {
       "path": "drizzle/0000_paleonet.sql",
       "bytes": 3449,
       "sha256": "403a3ae8770c892d5f5e65974469c82476550179029b67c768be1de3580f9620"
@@ -162,24 +168,49 @@
       "sha256": "510050eab352c6159449ab5a3593f34acf9eac6780325273932712e49c8f404c"
     },
     {
+      "path": "drizzle/0003_d1_storage.sql",
+      "bytes": 1482,
+      "sha256": "e8d531c4eeb0d58db89cb4a8ceef08b991ad4e6b8ceeb0aec108ccf4bb014478"
+    },
+    {
       "path": "drizzle/meta/_journal.json",
       "bytes": 317,
       "sha256": "c9799f4537bbd5d8e4b212c356c340b7fbc9bdb11d734558a8b8ea2be9711aec"
     },
     {
       "path": "package.json",
-      "bytes": 262,
-      "sha256": "6ebb51c1ace4787f52c73e03241c3a2a524601754ad49aae8446d4808ac2eb36"
+      "bytes": 413,
+      "sha256": "a20c92f5a02c660f49f25842f15b0caed36735d7352ad9b2c896c8b0e88e9ee8"
+    },
+    {
+      "path": "scripts/server.mjs",
+      "bytes": 3483,
+      "sha256": "a09dceb9ad97d7e2dccec0c306ba36f67c4e78bf1a3c61f855c0dff07694e23d"
     },
     {
       "path": "scripts-build.mjs",
-      "bytes": 2181,
-      "sha256": "59309b3486beb43eebd4f029de3d31753b4ccecec29a7a266b73225340448d2c"
+      "bytes": 2264,
+      "sha256": "8389a1de94bd125d53216a8908df074b8426a3bfba7fb324da2ffb86c2ecc94e"
+    },
+    {
+      "path": "setup/schema.sql",
+      "bytes": 5798,
+      "sha256": "b17653691b8a6bdbf427c5ccbede5979128544cf5e593c64d9570de27a71884a"
     },
     {
       "path": "tests/backend.test.mjs",
-      "bytes": 7367,
-      "sha256": "7ec814775dc04508790128c2355090ec68523f024a509227873a692ce0db54b1"
+      "bytes": 7735,
+      "sha256": "02770da33fccbaa1b1943ac20bc89b5d2b1597f70de4d606b7b640303d624be8"
+    },
+    {
+      "path": "tests/runtime.test.mjs",
+      "bytes": 2674,
+      "sha256": "0c196499bf28a00281ee7dd38d57192e7e55b93d3b50db4393129ecbf4d38382"
+    },
+    {
+      "path": "tests/storage.test.mjs",
+      "bytes": 5368,
+      "sha256": "ebace8cafa234c6023f81e21906c20b0db43d45e011b9d0f8b5e63da488e4702"
     },
     {
       "path": "ui/app.css",
@@ -203,14 +234,24 @@
     },
     {
       "path": "worker/index.js",
-      "bytes": 46828,
-      "sha256": "c42a4dec09208f2f6e1034a83c2a395a3ffe521f54aab7f5ac6a238302df79e0"
+      "bytes": 47248,
+      "sha256": "ec283ece2fd218e84172f2a0e4f0f163eb8540efefc6da5282173f95fd1742d9"
+    },
+    {
+      "path": "worker/storage.js",
+      "bytes": 5897,
+      "sha256": "e874b45a5d562b08d96d20cf5fd8f8723ec458c4a6e9970f0bea31bd73e0044e"
+    },
+    {
+      "path": "wrangler.jsonc",
+      "bytes": 362,
+      "sha256": "24d78d48c9a48958a2a6b3ecc77f4fa84785d08c9c596a55f21f1240ee9c5994"
     }
   ],
   "excluded": [
     "dist/ (rebuildable)",
-    "Git history",
-    "runtime user data and uploads"
+    "runtime data and secrets",
+    "SOURCE_MANIFEST.json (self)"
   ],
-  "verification": "npm test passed"
+  "verification": "Backend lifecycle with existing bucket and D1 fallback; storage quotas, ACLs, four members and chat; standalone SQLite restart persistence"
 }

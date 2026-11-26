@@ -7,7 +7,7 @@
     vi:{chat:'Trò chuyện trực tiếp',search:'Tìm thành viên…',message:'Nhập tin nhắn…',send:'Gửi',members:'Thành viên',membersTitle:'Danh sách thành viên',searchStart:'Tìm thành viên để bắt đầu trò chuyện',empty:'Không có thành viên để hiển thị',self:'Bạn',chatAction:'Trò chuyện',invited:'Đã mời',me:'Tôi',login:'Đăng nhập để tìm và liên hệ thành viên được cấp quyền.',needLogin:'Vui lòng đăng nhập để sử dụng trò chuyện',noMessages:'Chưa có tin nhắn. Hãy gửi tin nhắn đầu tiên.',photo:'Xem ảnh'}
   };
   const text = key => (words[uiLang] || words.zh)[key] || words.zh[key] || key;
-  const demoIds = new Set(['demo:demo1','demo:demo2','demo:demo3','demo:demo4']);
+  const demoIds = new Set(['demo:tino','demo:tino1','demo:tino2','demo:tino3']);
   let current = null, people = [], selected = null, thread = [], busy = false;
   async function api(path, options = {}) {
     const response = await fetch(path, {credentials:'same-origin', ...options, headers:{...(options.body ? {'content-type':'application/json'} : {}), ...options.headers}});
@@ -58,6 +58,29 @@
       $('#chatThread').scrollTop = $('#chatThread').scrollHeight;
     } catch (error) { $('#chatThread').innerHTML = `<div class="chatEmpty">${safe(error.message)}</div>`; }
   }
+  function configureStorageButton() {
+    let button = document.querySelector('#storageUsageButton');
+    if (!button) {
+      button = document.createElement('button');button.id = 'storageUsageButton';button.type = 'button';
+      document.querySelector('#accountPanel').appendChild(button);
+      button.onclick = async () => {
+        try {
+          const data = await api('/api/storage');
+          const dialog = document.createElement('dialog');
+          dialog.style.cssText='max-width:480px;width:90%;border:1px solid #dbe4ed;border-radius:12px;padding:24px';
+          const title=document.createElement('h3');title.textContent=button.textContent;
+          const details=document.createElement('p');details.style.whiteSpace='pre-line';
+          const mib=value=>(Number(value)/1048576).toFixed(2)+' MiB';
+          const copy=uiLang==='en'?['Stored objects','Database size','Single item limit','Close']:uiLang==='vi'?['Dữ liệu lưu trữ','Dung lượng cơ sở dữ liệu','Giới hạn mỗi mục','Đóng']:['共用物件用量','資料庫用量','單一項目上限','關閉'];
+          details.textContent=data.backend==='d1'?`${copy[0]}: ${mib(data.objectBytes)} / ${mib(data.objectBudgetBytes)}\n${copy[1]}: ${mib(data.databaseBytes)}\n${copy[2]}: ${mib(data.objectLimitBytes)}`:'R2';
+          const close=document.createElement('button');close.textContent=copy[3];close.onclick=()=>dialog.close();
+          dialog.append(title,details,close);dialog.addEventListener('close',()=>dialog.remove());document.body.appendChild(dialog);dialog.showModal();
+        } catch(error) {toast(error.message)}
+      };
+    }
+    button.hidden=current?.role!=='admin';
+    button.textContent=uiLang==='en'?'Storage usage':uiLang==='vi'?'Dung lượng lưu trữ':'儲存用量';
+  }
   async function ensureIdentity() {
     try {
       const data = await api('/api/me');
@@ -68,6 +91,7 @@
       activeUser = {account, verifiedAccount:account, name:current.name, unit:current.unit, initials:initialsValue};
       sessionStorage.setItem('mrcDemoSession', JSON.stringify(activeUser));
       applyAccount();
+      configureStorageButton();
       window.dispatchEvent(new Event("profileIdentity"));
       try {
         await refreshPeople();
