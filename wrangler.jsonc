@@ -1,0 +1,7 @@
+{
+  "name": "product-social-network",
+  "main": "dist/server/index.js",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  "keep_vars": true
+}
