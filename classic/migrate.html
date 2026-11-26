@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>原站資料搬遷</title><style>
+body{font:16px/1.6 system-ui,sans-serif;background:#f4f7fa;color:#172637;margin:0}main{max-width:880px;margin:32px auto;padding:24px;background:white;border:1px solid #dbe4ed;border-radius:16px}h1{font-size:24px}label{display:block;margin:16px 0}input{display:block;width:100%;box-sizing:border-box;padding:10px;font:inherit;border:1px solid #b8cadd;border-radius:6px}button,a{font:inherit}button{padding:10px 16px;border:0;border-radius:7px;background:#176bd6;color:white;cursor:pointer;margin-right:10px}button:disabled{opacity:.5;cursor:default}a{color:#176bd6}pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:16px;background:#edf3fa}#progress{width:100%}.error{color:#b3261e}.good{color:#12633c}
+</style></head><body><main>
+<h1>原 Sites 測試資料搬遷</h1>
+<p><a href="/classic/index.html">返回 Product Social Network</a></p>
+<p id="identity">確認新站登入身分中…</p>
+<p>原站：<strong>product-social-network.blnise.chatgpt.site</strong><br>目的地：目前網站的私有資料庫。重複內容略過；同編號但不同內容保留新站，原站版本另存快照。</p>
+<form id="credentials" autocomplete="off">
+<label>原 Sites 帳號<input id="sourceAccount" name="sourceAccount" value="tino" autocomplete="off" required></label>
+<label>原 Sites 密碼<input id="sourcePassword" name="sourcePassword" type="password" autocomplete="off" required></label>
+<details><summary>原站額外存取設定（通常不用）</summary><label>原站存取權杖（選填）<input id="sourceToken" name="sourceToken" type="password" autocomplete="off"></label></details>
+<button id="preview" type="submit" disabled>盤點原站資料</button><button id="start" type="button" disabled>開始完整搬遷</button>
+</form>
+<progress id="progress" value="0" max="1"></progress>
+<p id="summary" aria-live="polite"></p><pre id="results" aria-live="polite">尚未開始。帳密僅在此次操作期間使用，不寫入 GitHub 或瀏覽器儲存。</pre>
+<script type="module">
+const $=s=>document.querySelector(s);let plan=null,busy=false,results=[];
+const credentials=()=>Object.fromEntries(new FormData($('#credentials')).entries());
+async function api(data){const r=await fetch('/api/migration',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({...credentials(),...data})});const value=await r.json();if(!r.ok){const e=new Error(value.error||'搬遷失敗');e.result=value;throw e}return value}
+function render(){const ok=results.filter(r=>r.status==='imported').length,duplicates=results.filter(r=>r.status==='duplicate').length,failed=results.filter(r=>r.status==='failed'||r.status==='conflict').length;$('#summary').textContent='已搬入 '+ok+'；重複略過 '+duplicates+'；待處理 '+failed;$('#results').textContent=JSON.stringify({source:plan?.source,expected:plan?{posts:plan.posts,comments:plan.comments,projects:plan.projects,checklistItems:plan.checklistItems,images:plan.images}:null,results},null,2)}
+async function preview(){plan=await api({action:'preview'});$('#summary').textContent='找到 '+plan.posts+' 則貼文、'+plan.comments+' 則留言、'+plan.projects+' 份型體資料（'+plan.checklistItems+' 項檢核）、'+plan.images+' 張圖片。';$('#results').textContent=JSON.stringify(plan,null,2);$('#start').disabled=false;return plan}
+$('#credentials').onsubmit=async e=>{e.preventDefault();if(busy)return;$('#preview').disabled=true;try{await preview()}catch(error){$('#summary').textContent=error.message;$('#summary').className='error'}finally{$('#preview').disabled=false}};
+$('#start').onclick=async()=>{if(busy)return;busy=true;$('#preview').disabled=true;$('#start').disabled=true;results=[];try{await preview();$('#start').disabled=true;$('#progress').max=plan.entries.length;for(const entry of plan.entries){try{const result=await api({action:'import',...entry});results.push(result)}catch(error){results.push({...entry,status:error.result?.status||'failed',error:error.message})}$('#progress').value=results.length;render()}const report=await api({action:'report',results});$('#summary').textContent+='；核對報告 '+report.id;$('#summary').className=results.some(r=>r.status==='failed'||r.status==='conflict')?'error':'good'}catch(error){$('#summary').textContent=error.message;$('#summary').className='error'}finally{busy=false;$('#preview').disabled=false;$('#start').disabled=false;$('#sourcePassword').value='';$('#sourceToken').value=''}};
+try{const r=await fetch('/api/me',{credentials:'same-origin'});const data=await r.json();if(r.ok&&data.user.role==='admin'){$('#identity').textContent='已登入新站管理員：'+data.user.name;$('#preview').disabled=false}else{$('#identity').textContent='請先回主站，以 tino 管理員登入，再回到此頁。';$('#identity').className='error'}}catch{$('#identity').textContent='無法確認新站登入，請先回主站重新登入。'}
+</script></main></body></html>

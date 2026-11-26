@@ -1,262 +1,282 @@
 {
   "original_sites_source_commit": "e1e0c9a597746f7ae740de925a5852e8d5daf86b",
-  "purpose": "Current source inventory after D1-only test storage and intranet runtime changes",
+  "purpose": "Source inventory including private admin-only migration tooling; excludes runtime user data",
   "files": [
     {
       "path": ".env.example",
-      "bytes": 62,
-      "sha256": "32081eed63786e58459432b4ba7cee20b2b38589db1bc907e3925f9a9b60afdf"
+      "gitBlobSha": "1895b36db3b2f300630e35196e823fda54e74962",
+      "bytes": 62
     },
     {
       "path": ".gitignore",
-      "bytes": 143,
-      "sha256": "cf4343bc82db29a2e57fbeb45fe8a8b0da432a4083503fd8dd47e61274079e59"
+      "gitBlobSha": "ba20a28e4fed2c4fdeb44b221b3c72e4286366cc",
+      "bytes": 143
     },
     {
       "path": ".openai/hosting.json",
-      "bytes": 82,
-      "sha256": "f9e5a786da2aa8cc78f63fb926ad11ba31c276bf36e1186c3bc49220b705b1e1"
+      "gitBlobSha": "2b4ba26435b83d62cee2dfae11ef953ea8fdefd9",
+      "bytes": 82
     },
     {
       "path": "AGENTS.md",
-      "bytes": 595,
-      "sha256": "bfcec0dc724d78bee9f9617209dbe38558efecd65d9a1088b040db126601acb5"
+      "gitBlobSha": "d291f32e049d2debe56d3aee6dac5d363cc6e0ad",
+      "bytes": 595
     },
     {
       "path": "README.md",
-      "bytes": 3184,
-      "sha256": "1f748e57b2935457f5d81958e58dbe5c4241233670ab51cf29bd6100b6d1cf51"
+      "gitBlobSha": "ae958ec0483fc082603cc7c5a33068d378e9d184",
+      "bytes": 3184
     },
     {
       "path": "classic/index.html",
-      "bytes": 139362,
-      "sha256": "6c10172118aa5e7c762d74d1649f602bfe55222bb30bfa4cfad4b2e280478aef"
+      "gitBlobSha": "78ea6bba7134f8dca396a1e42cf11e62000b0e56",
+      "bytes": 139362
     },
     {
       "path": "classic/manifest.webmanifest",
-      "bytes": 374,
-      "sha256": "ce47ac8600a09fdcc0024959592387024854ba783e5cec656bd94e0f37ad79e5"
+      "gitBlobSha": "226bea2f9c12d188a9db5af2e62fb3ec5e1271db",
+      "bytes": 374
+    },
+    {
+      "path": "classic/migrate.html",
+      "gitBlobSha": "8ab2d654d9887a6e2fc72722a3da0a233a6a2518",
+      "bytes": 5130
     },
     {
       "path": "classic/paleo-192.png",
-      "bytes": 23848,
-      "sha256": "93a58498997fd1209c92c6e3c877e39d4d0422882d779f43a8dcdbd3efa7cc02"
+      "gitBlobSha": "df58f42328c3c1a17235e9fb646d35d4fc27ef91",
+      "bytes": 23848
     },
     {
       "path": "classic/paleo-512.png",
-      "bytes": 118787,
-      "sha256": "bc6c034be264a54651dbe67e9e5d82ad7aead2a1be533a28ddcf593983947aba"
+      "gitBlobSha": "8fce1ccfe5ea5e090bb97d016bf132287ec05990",
+      "bytes": 118787
     },
     {
       "path": "classic/paleo-chat.js",
-      "bytes": 13998,
-      "sha256": "0302df7e170bdda3ea9254f988df0981458d07a4dea09704fc99c1e408bd9bb4"
+      "gitBlobSha": "0ac0dd1aa094e58e52337f05e1c31990eee885a3",
+      "bytes": 13998
     },
     {
       "path": "classic/paleo-checklist.css",
-      "bytes": 1436,
-      "sha256": "ba87dcb4859e4907c98f4d78f4578ef236e9cd64b0ba1829cb089c0fcb85f8d5"
+      "gitBlobSha": "f96d5f1ef56a87f44018f9e77f4ca6b2ef5192b4",
+      "bytes": 1436
     },
     {
       "path": "classic/paleo-checklist.js",
-      "bytes": 10853,
-      "sha256": "b1c82b703f361a2f431854eb55dd3efceccd6b25e9850a704f0da50c38952def"
+      "gitBlobSha": "e1a9c703020f7230930fd8f085a01d024ac20b8b",
+      "bytes": 10853
     },
     {
       "path": "classic/paleo-knowledge.js",
-      "bytes": 32064,
-      "sha256": "4577f7101e74d875e3c6f75c51635383f45c1da6646f3e3c215cedb65ba4c412"
+      "gitBlobSha": "480068dbfdfe9572b2a58127b6b74bc59e032008",
+      "bytes": 32064
     },
     {
       "path": "classic/paleo-logo.png",
-      "bytes": 666288,
-      "sha256": "8e4e449aa558aa7657f705f6a5e92a3c0653cd4bbf82f4c16f414e02de54f820"
+      "gitBlobSha": "b58ecd41dc0629ded1c85c367c5be14fc1fa65fc",
+      "bytes": 666288
     },
     {
       "path": "classic/paleo-mail-preview.css",
-      "bytes": 2893,
-      "sha256": "25d0712f01d3e25ee713c9a348a910290151c1653a9bba99e05026d027d00e76"
+      "gitBlobSha": "9b5cdaea69dd6d18456d400e3b1540380966ce2e",
+      "bytes": 2893
     },
     {
       "path": "classic/paleo-mail.js",
-      "bytes": 16138,
-      "sha256": "b78961953c3188970fe104dbf04fc40975f5d37ab2b9b3d907836c5996661119"
+      "gitBlobSha": "de57cbe098342ddcac5129971a0923765a7e6c0f",
+      "bytes": 16138
     },
     {
       "path": "classic/paleo-msg.js",
-      "bytes": 5212,
-      "sha256": "03f7a83801d29bc74a53e672dc5071ac1f6657c109457ecc5aa7078890050d4c"
+      "gitBlobSha": "6839cdb4b9b788c5c017370ceb711aadb0feff76",
+      "bytes": 5212
     },
     {
       "path": "classic/paleo-my-work.css",
-      "bytes": 2109,
-      "sha256": "7e5e1170bd7bd1e6545ce2291ae5632ea7cc4197e8c0095545543db5a923b472"
+      "gitBlobSha": "62d8607e6178f1dc6b272489306fb3618c60350e",
+      "bytes": 2109
     },
     {
       "path": "classic/paleo-my-work.js",
-      "bytes": 8994,
-      "sha256": "ffb1537a2133d1f15a7dc7fd2f624594c7d7e7b5a281779685f8f564361ea32e"
+      "gitBlobSha": "bd6f841388aae8c891495562ab78753e0207fbcb",
+      "bytes": 8994
     },
     {
       "path": "classic/paleo-posts.js",
-      "bytes": 3880,
-      "sha256": "3624e78aebfbf7b4ea9b853ce3b3b63c66443f11eb0bc6bbbfb6107778a04326"
+      "gitBlobSha": "2204c5774472bc96c56d92179cacebf36d9deedc",
+      "bytes": 3880
     },
     {
       "path": "classic/paleo-sync.js",
-      "bytes": 6045,
-      "sha256": "80bae86d3c54727483480955c3e69de2cfefd6639508098a5b4d30bdc0a3ee9b"
+      "gitBlobSha": "9524af0dc04ec17c61a9063093cf0be1854d724b",
+      "bytes": 6045
     },
     {
       "path": "classic/paleo-timeline.css",
-      "bytes": 2278,
-      "sha256": "8406fc15e52406d0fba236915c8f82a81c7eefc9aca6258ac0a152a294dc11d4"
+      "gitBlobSha": "0e4d9df821b150f16bb886e0bc4d2c8b2956eb10",
+      "bytes": 2278
     },
     {
       "path": "classic/paleo-timeline.js",
-      "bytes": 9959,
-      "sha256": "0e139a6d68c7572bad67fb37fe582affe71d046961987e885d26cff62ecc459d"
+      "gitBlobSha": "42f4048309b0c20c74609dbdcb16d806f5574c12",
+      "bytes": 9959
     },
     {
       "path": "classic/paleo-workflow.js",
-      "bytes": 1967,
-      "sha256": "40d963e761c67238395ebaa1faf1723ec795eb643f1d4a9422ef5ada81563111"
+      "gitBlobSha": "b44e1479c3071410a908e9d37509d6a8050b2fd3",
+      "bytes": 1967
     },
     {
       "path": "classic/paleo.css",
-      "bytes": 24736,
-      "sha256": "dd9178b2c974c070d7faa20bd809a9af8abcc1753ead67df0abd054d54eba0c7"
+      "gitBlobSha": "80efc636aa57fe376bd4e8e2a10c75132bfca1c4",
+      "bytes": 24736
     },
     {
       "path": "classic/paleo.js",
-      "bytes": 9559,
-      "sha256": "7971aac0c74cdc2c7c515b2774417b15fc0b2cb18b90c3e8179a29507f62727c"
+      "gitBlobSha": "ba89b0683ec7099ede0ab4c29bbffb36a6d7b0c4",
+      "bytes": 9559
     },
     {
       "path": "classic/profile.js",
-      "bytes": 4944,
-      "sha256": "634e61b6a34e62254a4007764cc76c4dc4b5627f702cdc21906654e80b84a5f2"
+      "gitBlobSha": "262fd36c586dfe54b85567989c232ae7d47f74e4",
+      "bytes": 4944
     },
     {
       "path": "classic/readiness-templates.js",
-      "bytes": 112936,
-      "sha256": "1ec34ca82d3d4383b296f6e72c081499a984e271ff19ecfe4709177285a22a80"
+      "gitBlobSha": "0ada69455829b54c5cd117fe46b22af4566b7e43",
+      "bytes": 112936
     },
     {
       "path": "classic/vp-shoe-p-logo.png",
-      "bytes": 1135656,
-      "sha256": "8c66c587cd1f183a61d2625be7689bda5f5cff34b928df53309dd01e8ab3469b"
+      "gitBlobSha": "de7bb4d6e0b49c255f0ce91502be8de5e0631f4c",
+      "bytes": 1135656
     },
     {
       "path": "docs/intranet.md",
-      "bytes": 2853,
-      "sha256": "cda8c1dd9d119f2bf0d26e3a333cb7cd1357c9d8cb6b533e29bef614bec3f2ec"
+      "gitBlobSha": "ab9ff5a4d9c43732303e96f91b79bae1a432d3b3",
+      "bytes": 2853
+    },
+    {
+      "path": "docs/migration.md",
+      "gitBlobSha": "717bcc4cc0cd74c4ce46c89988ba36d31d68d0e3",
+      "bytes": 1611
     },
     {
       "path": "drizzle/0000_paleonet.sql",
-      "bytes": 3449,
-      "sha256": "403a3ae8770c892d5f5e65974469c82476550179029b67c768be1de3580f9620"
+      "gitBlobSha": "0cdd057c795bb48e086610fa213274f94ee7531b",
+      "bytes": 3449
     },
     {
       "path": "drizzle/0001_demo_sessions.sql",
-      "bytes": 142,
-      "sha256": "0eb3c3d9bd8d56b2e2b58a494db2a474621174a0009d21ce6de72db2f15e63b4"
+      "gitBlobSha": "8377483e9fdf3f322072a7da91b308eee2dbe01f",
+      "bytes": 142
     },
     {
       "path": "drizzle/0002_direct_messages.sql",
-      "bytes": 722,
-      "sha256": "510050eab352c6159449ab5a3593f34acf9eac6780325273932712e49c8f404c"
+      "gitBlobSha": "b239e86820e264389450975a05c8f94db062c440",
+      "bytes": 722
     },
     {
       "path": "drizzle/0003_d1_storage.sql",
-      "bytes": 1482,
-      "sha256": "e8d531c4eeb0d58db89cb4a8ceef08b991ad4e6b8ceeb0aec108ccf4bb014478"
+      "gitBlobSha": "a844ec16b69a64a8b257ced95edbcebdd007dee2",
+      "bytes": 1482
     },
     {
       "path": "drizzle/meta/_journal.json",
-      "bytes": 317,
-      "sha256": "c9799f4537bbd5d8e4b212c356c340b7fbc9bdb11d734558a8b8ea2be9711aec"
+      "gitBlobSha": "755415171ef3c26ead9b7edfb8ff5f195d134f76",
+      "bytes": 317
     },
     {
       "path": "package.json",
-      "bytes": 276,
-      "sha256": "9e3dd468ab1f398923a65a87f494fe73e8d09adfa216e3d258c95058e107331e"
-    },
-    {
-      "path": "scripts/server.mjs",
-      "bytes": 3483,
-      "sha256": "a09dceb9ad97d7e2dccec0c306ba36f67c4e78bf1a3c61f855c0dff07694e23d"
+      "gitBlobSha": "c6b47824fb1358d17f5f527e45875d5dc66f57f0",
+      "bytes": 276
     },
     {
       "path": "scripts-build.mjs",
-      "bytes": 2264,
-      "sha256": "8389a1de94bd125d53216a8908df074b8426a3bfba7fb324da2ffb86c2ecc94e"
+      "gitBlobSha": "a5e1592edb8e750b70007c162b5452245113745f",
+      "bytes": 2351
+    },
+    {
+      "path": "scripts/server.mjs",
+      "gitBlobSha": "a323eb5d99378a5e0737f0aa681b30949320edf3",
+      "bytes": 3483
     },
     {
       "path": "setup/schema.sql",
-      "bytes": 5798,
-      "sha256": "b17653691b8a6bdbf427c5ccbede5979128544cf5e593c64d9570de27a71884a"
+      "gitBlobSha": "2d19fc0500d24c9b110abb58369120371642e5cc",
+      "bytes": 5798
     },
     {
       "path": "tests/backend.test.mjs",
-      "bytes": 7735,
-      "sha256": "02770da33fccbaa1b1943ac20bc89b5d2b1597f70de4d606b7b640303d624be8"
+      "gitBlobSha": "719f79ec365a7a49b908a90504044fd630626436",
+      "bytes": 7735
+    },
+    {
+      "path": "tests/migration.test.mjs",
+      "gitBlobSha": "d26dda009479e3c9aea5f224101956247d955fe8",
+      "bytes": 3889
     },
     {
       "path": "tests/run.mjs",
-      "bytes": 396,
-      "sha256": "24c65060cc8682f5e91fd239b926bec96e17823e6d31146073ea1862cfcabe58"
+      "gitBlobSha": "1a1d48ffdb93e5bb3cb357c3ddf386581c9569a5",
+      "bytes": 428
     },
     {
       "path": "tests/runtime.test.mjs",
-      "bytes": 2674,
-      "sha256": "0c196499bf28a00281ee7dd38d57192e7e55b93d3b50db4393129ecbf4d38382"
+      "gitBlobSha": "b4f396c67e2000589ca197d822d55f1e2f49c20c",
+      "bytes": 2674
     },
     {
       "path": "tests/storage.test.mjs",
-      "bytes": 5368,
-      "sha256": "ebace8cafa234c6023f81e21906c20b0db43d45e011b9d0f8b5e63da488e4702"
+      "gitBlobSha": "83fa393d2b6b24e08edfca7fc4ccf2f155d27df6",
+      "bytes": 5368
     },
     {
       "path": "ui/app.css",
-      "bytes": 20765,
-      "sha256": "540e410506fc94cd119877270bd61d7ceaaf858efa975cd3301e5ba54906546c"
+      "gitBlobSha": "1035ad2312de5dbdbf278c92923b8aef3f40f017",
+      "bytes": 20765
     },
     {
       "path": "ui/app.js",
-      "bytes": 53122,
-      "sha256": "07243430b8ee1da5dd0e754876b5b0991b2b380e8f23a21473779b2dc804d131"
+      "gitBlobSha": "6cd988e3e20b07b124b1b4c12d01a08179ffc7f6",
+      "bytes": 53122
     },
     {
       "path": "ui/index.html",
-      "bytes": 3365,
-      "sha256": "43ba617f1908b7b8f614e5268cdfba2d238cb45238212c7cad62a2e4686ef3b1"
+      "gitBlobSha": "e12c90f26cfd3f0bdd8c35f0ea83383252213bc6",
+      "bytes": 3365
     },
     {
       "path": "ui/manifest.webmanifest",
-      "bytes": 249,
-      "sha256": "1b15723ef4a866eb6613a63d129a3e6e31741a5ad3f028bb0a2e13067bf52c44"
+      "gitBlobSha": "8979da4368f50f8c5f69714adcaa5d459a9f9cd5",
+      "bytes": 249
     },
     {
       "path": "worker/index.js",
-      "bytes": 47248,
-      "sha256": "ec283ece2fd218e84172f2a0e4f0f163eb8540efefc6da5282173f95fd1742d9"
+      "gitBlobSha": "35ef02fb808ea6baae7d4ac925e155ad19191ee9",
+      "bytes": 47424
+    },
+    {
+      "path": "worker/migration.js",
+      "gitBlobSha": "050c3f774bc086118dd8597418dce01a83d42ad7",
+      "bytes": 10203
     },
     {
       "path": "worker/storage.js",
-      "bytes": 5897,
-      "sha256": "e874b45a5d562b08d96d20cf5fd8f8723ec458c4a6e9970f0bea31bd73e0044e"
+      "gitBlobSha": "a55d6c276bd8b6ce26b301bed509e1794363e813",
+      "bytes": 5897
     },
     {
       "path": "wrangler.jsonc",
-      "bytes": 362,
-      "sha256": "24d78d48c9a48958a2a6b3ecc77f4fa84785d08c9c596a55f21f1240ee9c5994"
+      "gitBlobSha": "f118f650d8eb2fbf3b4e7b4c7a668adcc92f4bc1",
+      "bytes": 362
     }
   ],
   "excluded": [
     "dist/ (rebuildable)",
-    "runtime data and secrets",
+    "runtime records, images and credentials",
     "SOURCE_MANIFEST.json (self)"
   ],
-  "verification": "Backend lifecycle with existing bucket and D1 fallback; storage quotas, ACLs, four members and chat; standalone SQLite restart persistence"
+  "verification": "D1 application/runtime tests from prior revision; migration mock tests and all changed JavaScript syntax checked"
 }

@@ -7,3 +7,5 @@ add('ui','');add('classic','/classic');files.set('/logo.png',path.join(root,'cla
 const type={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.webmanifest':'application/manifest+json'};const assets={};for(const [url,file] of files)assets[url]={type:type[path.extname(file)]||'application/octet-stream',data:fs.readFileSync(file).toString('base64')};fs.writeFileSync(path.join(out,'assets.js'),'export const assets = '+JSON.stringify(assets)+';\n');fs.copyFileSync(path.join(root,'worker/index.js'),path.join(out,'index.js'));fs.mkdirSync(path.join(root,'dist/.openai'),{recursive:true});fs.copyFileSync(path.join(root,'.openai/hosting.json'),path.join(root,'dist/.openai/hosting.json'));console.log('Worker built with',files.size,'assets');
 
 fs.copyFileSync(path.join(root,'worker/storage.js'),path.join(out,'storage.js'));
+
+fs.copyFileSync(path.join(root,'worker/migration.js'),path.join(out,'migration.js'));

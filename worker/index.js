@@ -1,3 +1,4 @@
+import { handleMigration } from './migration.js';
 import { createD1Bucket, StorageError } from './storage.js';
 import { assets } from './assets.js';
 import { readinessTemplates } from './templates.js';
@@ -69,6 +70,7 @@ async function handleApi(request,env,url) {
   if(user.pending) return err('帳號尚未受邀，請聯繫 PM 管理員',403);
   const method=request.method, path=url.pathname;
   if(method!=='GET' && !originOkay(request)) return err('來源驗證失敗',403);
+  if(path==='/api/migration' && method==='POST')return handleMigration(request,env,user);
   if(path==='/api/profile' && ['GET','PUT'].includes(method)) {
     const key='profiles/'+encodeURIComponent(user.id)+'.json';
     if(method==='GET'){
@@ -126,7 +128,7 @@ async function handleApi(request,env,url) {
           if(object)try{profile=JSON.parse(await object.text())}catch{}
           profiles.set(row.actorId,profile);
         }
-        row.authorProfile=profiles.get(row.actorId);
+        row.authorProfile=row.migration?.sourceAuthorProfile||profiles.get(row.actorId);
       }
     }
     return json(rows);
