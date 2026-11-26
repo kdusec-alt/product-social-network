@@ -266,6 +266,14 @@ async function handleApi(request,env,url) {
       FROM direct_messages m LEFT JOIN chat_state cs ON cs.viewer=m.recipient_id AND cs.peer=m.sender_id JOIN users s ON s.id=m.sender_id JOIN users r ON r.id=m.recipient_id LEFT JOIN direct_message_attachments a ON a.message_id=m.id
       WHERE m.sender_id=? OR m.recipient_id=? ORDER BY m.created_at DESC LIMIT 500`).bind(user.id,user.id).all()).results);
   }
+  const recall=path.match(/^\/api\/messages\/([^/]+)\/recall$/);
+  if(recall && method==='POST'){
+    const result=await env.DB.prepare("UPDATE direct_messages SET body='' WHERE id=? AND sender_id=? AND created_at>=?").bind(recall[1],user.id,new Date(Date.now()-180000).toISOString()).run();
+    if(!result.meta?.changes)return err('只能在三分鐘內收回自己的訊息',403);
+    const attachment=await env.DB.prepare('SELECT object_key FROM direct_message_attachments WHERE message_id=?').bind(recall[1]).first();
+    if(attachment){await env.BUCKET.delete(attachment.object_key);await env.DB.prepare('DELETE FROM direct_message_attachments WHERE message_id=?').bind(recall[1]).run();}
+    return json({ok:true});
+  }
   const dmPhotoPath=path.match(/^\/api\/messages\/([^/]+)\/photo$/);
   if(dmPhotoPath && method==='POST') {
     const message=await env.DB.prepare('SELECT id FROM direct_messages WHERE id=? AND sender_id=?').bind(dmPhotoPath[1],user.id).first();if(!message)return err('找不到可附加照片的訊息',404);
@@ -274,7 +282,7 @@ async function handleApi(request,env,url) {
   }
   const dmFilePath=path.match(/^\/api\/message-files\/([^/]+)$/);
   if(dmFilePath && method==='GET') {
-    const attachment=await env.DB.prepare('SELECT a.* FROM direct_message_attachments a JOIN direct_messages m ON m.id=a.message_id WHERE a.message_id=? AND (m.sender_id=? OR m.recipient_id=?)').bind(dmFilePath[1],user.id,user.id).first();if(!attachment)return err('找不到照片',404);const obj=await env.BUCKET.get(attachment.object_key);if(!obj)return err('照片不存在',404);return new Response(obj.body,{headers:{'content-type':attachment.mime,'cache-control':'private, max-age=300','x-content-type-options':'nosniff'}});
+    const attachment=await env.DB.prepare('SELECT a.* FROM direct_message_attachments a JOIN direct_messages m ON m.id=a.message_id WHERE a.message_id=? AND m.body<>\'\' AND (m.sender_id=? OR m.recipient_id=?)').bind(dmFilePath[1],user.id,user.id).first();if(!attachment)return err('找不到照片',404);const obj=await env.BUCKET.get(attachment.object_key);if(!obj)return err('照片不存在',404);return new Response(obj.body,{headers:{'content-type':attachment.mime,'cache-control':'private, max-age=300','x-content-type-options':'nosniff'}});
   }
   if(path==='/api/messages' && method==='POST') {
     const d=await body(request),to=s(d.to,100),text=s(d.body,4000);

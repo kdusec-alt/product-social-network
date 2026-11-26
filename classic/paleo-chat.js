@@ -86,7 +86,7 @@
   async function openPerson(id) {
     const person = people.find(item => item.id === id);
     if (!person || !current) return;
-    selected = person;
+    selected = person; replyId=''; photo.value=''; syncDraft(); lastPerson='';
     $('#chatPanel').hidden = false;
     $('#chatBack').hidden = false;
     $('#chatSearch').hidden = true;
@@ -103,8 +103,12 @@
       const personId = selected.id;
       const rows = await api('/api/messages?with=' + encodeURIComponent(personId));
       if (selected?.id !== personId) return;
+      const pane=$('#chatThread'), oldTop=pane.scrollTop;
+      const follow=lastPerson!==personId || pane.scrollHeight-pane.clientHeight-oldTop<32;
+      lastPerson=personId;
       thread = rows;
-      $('#chatThread').innerHTML = rows.length ? rows.map(message => `<div class="chatBubble ${message.sender_id === current.id ? 'mine' : ''}"><small>${safe(message.sender_name)} · ${new Date(message.created_at).toLocaleString()}</small>${safe(message.body)}${message.sender_id===current.id ? '<small>'+ (message.is_read?'已讀':'未讀取')+'</small>':''}${message.photo_id ? `<br><a href="/api/message-files/${encodeURIComponent(message.photo_id)}" target="_blank" rel="noopener">${text('photo')}</a>` : ''}</div>`).join('') : `<div class="chatEmpty">${text('noMessages')}</div>`;
+      $('#chatThread').innerHTML = rows.length ? rows.map(message => `<div data-mid="${safe(message.id)}" class="chatBubble ${message.sender_id === current.id ? 'mine' : ''}"><small>${safe(message.sender_name)} · ${new Date(message.created_at).toLocaleString()}</small>${displayBody(message)}${message.sender_id===current.id ? '<small>'+ (message.is_read?'已讀':'未讀取')+'</small>':''}${message.body && message.photo_id ? `<br><a href="/api/message-files/${encodeURIComponent(message.photo_id)}" target="_blank" rel="noopener">${text('photo')}</a>` : ''}</div>`).join('') : `<div class="chatEmpty">${text('noMessages')}</div>`;
+      pane.scrollTop=follow?pane.scrollHeight:oldTop;
       const status=await api('/api/messages/typing?with='+encodeURIComponent(personId));
       if(selected?.id!==personId || $('#chatPanel').hidden)return;
       $('#chatTitle').textContent=text('chat')+' · '+selected.name+(status.typing?' · 對方輸入中…':'');
@@ -113,7 +117,7 @@
         await signal({peer:personId,seen:incoming.at(-1).id});
         const ids=new Set(incoming.map(m=>'dm:'+current.id+':'+m.id));notifications.forEach(n=>{if(ids.has(n.id))n.read=true});saveNotify();
       }
-      $('#chatThread').scrollTop = $('#chatThread').scrollHeight;
+
     } catch (error) { $('#chatThread').innerHTML = `<div class="chatEmpty">${safe(error.message)}</div>`; }
   }
   function configureStorageButton() {
@@ -186,13 +190,38 @@
       else if (open) await openPerson(open.dataset.chatPerson);
     } catch (error) { toast(error.message); }
   });
+  let lastPerson='',replyId='';
+  const form=$('#chatForm'), photo=document.createElement('input'),draft=document.createElement('button');
+  photo.type='file';photo.accept='image/png,image/jpeg,image/webp,image/gif';photo.hidden=true;
+  draft.type='button';draft.hidden=true;
+  function syncDraft(){draft.textContent=[replyId?'引用回覆':'',photo.files[0]?.name].filter(Boolean).join(' · ')+' ×';draft.hidden=!replyId&&!photo.files.length}
+  draft.onclick=()=>{replyId='';photo.value='';syncDraft()};photo.onchange=syncDraft;
+  function control(label,action){const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=action;form.append(b);return b}
+  form.append(photo,draft);
+  const emoji=document.createElement('select');emoji.setAttribute('aria-label','表情符號');
+  for(const value of ['😊','👍','❤️','😂','🙏','🎉','✅','👀','💪','🙂'])emoji.add(new Option(value,value));
+  control('加入表情',()=>{const field=$('#chatMessage');field.setRangeText(emoji.value,field.selectionStart,field.selectionEnd,'end');field.focus()});form.append(emoji);
+  control('📷',()=>photo.click());
+  form.style.flexWrap='wrap';
+  const prefix=/^↩\[([^\]\n]{1,100})\]\n/;
+  function displayBody(m){if(!m.body)return '<i>訊息已收回</i>';const ref=m.body.match(prefix);if(!ref)return safe(m.body);
+    const original=thread.find(row=>row.id===ref[1]);return '<blockquote>'+safe(original?.body?.replace(prefix,'').slice(0,90)||'原訊息無法顯示')+'</blockquote>'+safe(m.body.slice(ref[0].length))}
+  $('#chatThread').oncontextmenu=async e=>{
+    const row=e.target.closest('[data-mid]');if(!row)return;e.preventDefault();
+    const m=thread.find(x=>x.id===row.dataset.mid);if(!m?.body)return;
+    if(m.sender_id===current.id && Date.now()-Date.parse(m.created_at)<=180000){
+      if(confirm('收回這則訊息？')){try{await api('/api/messages/'+encodeURIComponent(m.id)+'/recall',{method:'POST'});await refreshThread();await refreshRecent()}catch(error){toast(error.message)}}return}
+    replyId=m.id;syncDraft();$('#chatMessage').focus({preventScroll:true});
+  };
   $('#chatForm')?.addEventListener('submit', async event => {
     event.preventDefault();
     const body = $('#chatMessage').value.trim();
-    if (!body || !selected || busy) return;
+    const file=photo.files[0];if ((!body&&!file) || !selected || busy) return;if(file&&file.size>8*1024*1024)return toast('圖片上限 8 MB');
     busy = true;
     try {
-      await api('/api/messages', {method:'POST', body:JSON.stringify({to:selected.id, body})});
+      const created=await api('/api/messages', {method:'POST', body:JSON.stringify({to:selected.id, body:(replyId?'↩['+replyId+']\n':'')+(body||'📷')})});
+      if(file){const res=await fetch('/api/messages/'+encodeURIComponent(created.id)+'/photo?name='+encodeURIComponent(file.name),{method:'POST',headers:{'content-type':file.type},body:file});if(!res.ok){await api('/api/messages/'+encodeURIComponent(created.id)+'/recall',{method:'POST'});throw Error('圖片上傳失敗')}}
+      replyId='';photo.value='';syncDraft();
       $('#chatMessage').value = '';
       busy = false;
       await refreshThread();
