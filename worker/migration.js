@@ -20,14 +20,14 @@ export async function handleMigration(request,env,user,fetcher=fetch,hash=digest
     if(!d.sourceAccount||!d.sourcePassword)return response({error:'請填入原 Sites 帳號與密碼'},400);
     const headers={'content-type':'application/json',origin:SOURCE};
     if(d.sourceToken)headers['OAI-Sites-Authorization']=d.sourceToken;
-    const login=await fetcher(SOURCE+'/api/login',{method:'POST',redirect:'error',headers,body:JSON.stringify({account:d.sourceAccount,password:d.sourcePassword})});
+    const login=await fetcher(SOURCE+'/api/login',{method:'POST',redirect:'manual',headers,body:JSON.stringify({account:d.sourceAccount,password:d.sourcePassword})});
     if(!login.ok)return response({error:'原 Sites 登入失敗；請確認原站帳密與存取權限'},502);
     const session=login.headers.get('set-cookie')?.match(/paleo_session=[a-f0-9]{64}/)?.[0];
     if(!session)return response({error:'原站沒有回傳有效登入 Cookie'},502);
     const sourceHeaders={cookie:session};
     if(d.sourceToken)sourceHeaders['OAI-Sites-Authorization']=d.sourceToken;
     const read=async path=>{
-      const r=await fetcher(SOURCE+path,{headers:sourceHeaders,redirect:'error'});
+      const r=await fetcher(SOURCE+path,{headers:sourceHeaders,redirect:'manual'});
       if(!r.ok)throw Error('原站讀取失敗：'+path+'（'+r.status+'）');
       return r;
     };
