@@ -336,3 +336,8 @@ body[data-theme="dark"] .chatLauncher .chatIcon { color: #fff !important; fill: 
 body[data-theme="dark"] :is(.mailGalleryBar,.mailGalleryDialog,.mailGalleryDialog header,.mailCardDetails > div) { background-color: #1c2734 !important; border-color: #40536b !important; color: #e6edf5 !important; }
 body[data-theme="dark"] .mailCardDetails summary { color: #dce7f3 !important; }
 body[data-theme="dark"] .mailGalleryGrid img { background-color: #253242; }
+
+body[data-theme="light"] #chatLauncher {background:#cdeaff!important;color:#101820!important}
+body[data-theme="dark"] #chatLauncher {background:#15232f!important;color:#d7edff!important}
+body[data-theme] #chatLauncher :is(span,.chatIcon){color:inherit!important;fill:currentColor!important}
+#chatLauncher:not([data-unread=""])[data-unread]::after{content:attr(data-unread);background:#a71929;color:white;border-radius:1em;padding:0 .45em;font-weight:bold}

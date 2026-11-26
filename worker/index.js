@@ -237,17 +237,33 @@ async function handleApi(request,env,url) {
     }));
     return json(members);
   }
+  if(path==='/api/messages/typing' || path==='/api/messages/state' || (path==='/api/messages' && method==='GET')) {
+    await env.DB.prepare('CREATE TABLE IF NOT EXISTS chat_state (viewer TEXT, peer TEXT, seen TEXT DEFAULT \'\', typing INTEGER DEFAULT 0, PRIMARY KEY(viewer,peer))').run();
+  }
+  if(path==='/api/messages/typing' && method==='GET'){
+    const row=await env.DB.prepare('SELECT typing FROM chat_state WHERE viewer=? AND peer=?').bind(url.searchParams.get('with')||'',user.id).first();return json({typing:Number(row?.typing)>Date.now()});
+  }
+  if(path==='/api/messages/state' && method==='POST'){
+    const {peer,seen,typing}=await request.json();
+    if(typeof peer!=='string'||peer===user.id)return err('Invalid peer',400);
+    if(seen){
+      await env.DB.prepare(`INSERT INTO chat_state(viewer,peer,seen) SELECT recipient_id,sender_id,created_at FROM direct_messages WHERE id=? AND recipient_id=? AND sender_id=? ON CONFLICT(viewer,peer) DO UPDATE SET seen=max(chat_state.seen,excluded.seen)`).bind(seen,user.id,peer).run();
+    } else {
+      await env.DB.prepare('INSERT INTO chat_state(viewer,peer,typing) VALUES(?,?,?) ON CONFLICT(viewer,peer) DO UPDATE SET typing=excluded.typing').bind(user.id,peer,typing?Date.now()+8000:0).run();
+    }
+    return json({ok:true});
+  }
   if(path==='/api/messages' && method==='GET') {
     const withId=s(url.searchParams.get('with'),100);
     if(withId){
       if(withId===user.id)return err('無法與自己建立聊天',400);
       const other=await env.DB.prepare('SELECT id FROM users WHERE id=?').bind(withId).first();if(!other)return err('找不到成員',404);
-      return json((await env.DB.prepare(`SELECT m.id,m.sender_id,m.recipient_id,m.body,m.created_at,s.display_name sender_name,s.unit sender_unit,r.display_name recipient_name,r.unit recipient_unit,a.message_id photo_id,a.name photo_name
-        FROM direct_messages m JOIN users s ON s.id=m.sender_id JOIN users r ON r.id=m.recipient_id LEFT JOIN direct_message_attachments a ON a.message_id=m.id
+      return json((await env.DB.prepare(`SELECT m.id,m.sender_id,m.recipient_id,m.body,m.created_at,coalesce(m.created_at<=cs.seen,0) is_read,cs.typing recipient_typing,s.display_name sender_name,s.unit sender_unit,r.display_name recipient_name,r.unit recipient_unit,a.message_id photo_id,a.name photo_name
+        FROM direct_messages m LEFT JOIN chat_state cs ON cs.viewer=m.recipient_id AND cs.peer=m.sender_id JOIN users s ON s.id=m.sender_id JOIN users r ON r.id=m.recipient_id LEFT JOIN direct_message_attachments a ON a.message_id=m.id
         WHERE (m.sender_id=? AND m.recipient_id=?) OR (m.sender_id=? AND m.recipient_id=?) ORDER BY m.created_at DESC LIMIT 300`).bind(user.id,withId,withId,user.id).all()).results.reverse());
     }
-    return json((await env.DB.prepare(`SELECT m.id,m.sender_id,m.recipient_id,m.body,m.created_at,s.display_name sender_name,s.unit sender_unit,r.display_name recipient_name,r.unit recipient_unit,a.message_id photo_id,a.name photo_name
-      FROM direct_messages m JOIN users s ON s.id=m.sender_id JOIN users r ON r.id=m.recipient_id LEFT JOIN direct_message_attachments a ON a.message_id=m.id
+    return json((await env.DB.prepare(`SELECT m.id,m.sender_id,m.recipient_id,m.body,m.created_at,coalesce(m.created_at<=cs.seen,0) is_read,cs.typing recipient_typing,s.display_name sender_name,s.unit sender_unit,r.display_name recipient_name,r.unit recipient_unit,a.message_id photo_id,a.name photo_name
+      FROM direct_messages m LEFT JOIN chat_state cs ON cs.viewer=m.recipient_id AND cs.peer=m.sender_id JOIN users s ON s.id=m.sender_id JOIN users r ON r.id=m.recipient_id LEFT JOIN direct_message_attachments a ON a.message_id=m.id
       WHERE m.sender_id=? OR m.recipient_id=? ORDER BY m.created_at DESC LIMIT 500`).bind(user.id,user.id).all()).results);
   }
   const dmPhotoPath=path.match(/^\/api\/messages\/([^/]+)\/photo$/);

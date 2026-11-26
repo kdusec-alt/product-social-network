@@ -34,23 +34,30 @@
       const id = message.sender_id === current?.id ? message.recipient_id : message.sender_id;
       const person = people.find(item => item.id === id);
       if (!person) return '';
-      return `<button class="chatRecent" type="button" data-chat-person="${safe(id)}"><b>${safe(person.nickname || person.name)}</b><small>${safe(message.body).slice(0,90)}</small><time>${safe(new Date(message.created_at).toLocaleString())}</time></button>`;
+      return `<button class="chatRecent" type="button" data-chat-person="${safe(id)}"><b>${safe(person.nickname || person.name)} ${unread.get(id)||''}</b><small>${safe(message.body).slice(0,90)}</small><time>${safe(new Date(message.created_at).toLocaleString())}</time></button>`;
     }).join('') : ''}`;
   }
+  let audio, initialized=false, lastTyping=0, unread=new Map();
+  document.addEventListener('pointerdown',()=>{try{audio ||= new AudioContext();if(audio.state==='suspended')audio.resume().catch(()=>{});}catch{}});
+  window.chatChime=()=>{if(audio?.state!=='running')return;const tone=audio.createOscillator(),gain=audio.createGain();tone.connect(gain);gain.connect(audio.destination);gain.gain.setValueAtTime(.1,audio.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.22);tone.frequency.value=740;tone.start();tone.stop(audio.currentTime+.22)};
+  const signal=(data)=>api('/api/messages/state',{method:'POST',body:JSON.stringify(data)});
+  document.addEventListener('input',e=>{if(e.target.id==='chatMessage'&&selected&&Date.now()-lastTyping>2000){lastTyping=Date.now();signal({peer:selected.id,typing:true}).catch(()=>{})}});
   window.openBellChat = openPerson;
   async function refreshRecent() {
     if (!current) return;
     const rows = await api('/api/messages');
+    unread=new Map();for(const m of rows)if(m.recipient_id===current.id&&!m.is_read)unread.set(m.sender_id,(unread.get(m.sender_id)||0)+1);
+    const total=[...unread.values()].reduce((a,b)=>a+b,0);$('#chatLauncher').dataset.unread=total||'';
     const keys = new Set(notifications.map(n => n.id));
     let added = false;
     for (const message of rows.slice().reverse()) {
       const id = 'dm:' + current.id + ':' + message.id;
       if (message.recipient_id !== current.id || keys.has(id)) continue;
       notifications.unshift({id, recipient:activePersona, actor:message.sender_name, chatSender:message.sender_id,
-        title:text('chat'), model:'', color:'', time:new Date(message.created_at).toLocaleString(), read:false});
+        title:text('chat'), model:'', color:'', time:new Date(message.created_at).toLocaleString(), read:!!message.is_read});
       added = true;
     }
-    if (added) saveNotify();
+    if (added){saveNotify();if(initialized)window.chatChime()}initialized=true;
     const seen = new Set();
     recent = rows.filter(message => {
       const id = message.sender_id === current.id ? message.recipient_id : message.sender_id;
@@ -97,7 +104,15 @@
       const rows = await api('/api/messages?with=' + encodeURIComponent(personId));
       if (selected?.id !== personId) return;
       thread = rows;
-      $('#chatThread').innerHTML = rows.length ? rows.map(message => `<div class="chatBubble ${message.sender_id === current.id ? 'mine' : ''}"><small>${safe(message.sender_name)} · ${new Date(message.created_at).toLocaleString()}</small>${safe(message.body)}${message.photo_id ? `<br><a href="/api/message-files/${encodeURIComponent(message.photo_id)}" target="_blank" rel="noopener">${text('photo')}</a>` : ''}</div>`).join('') : `<div class="chatEmpty">${text('noMessages')}</div>`;
+      $('#chatThread').innerHTML = rows.length ? rows.map(message => `<div class="chatBubble ${message.sender_id === current.id ? 'mine' : ''}"><small>${safe(message.sender_name)} · ${new Date(message.created_at).toLocaleString()}</small>${safe(message.body)}${message.sender_id===current.id ? '<small>'+ (message.is_read?'已讀':'未讀取')+'</small>':''}${message.photo_id ? `<br><a href="/api/message-files/${encodeURIComponent(message.photo_id)}" target="_blank" rel="noopener">${text('photo')}</a>` : ''}</div>`).join('') : `<div class="chatEmpty">${text('noMessages')}</div>`;
+      const status=await api('/api/messages/typing?with='+encodeURIComponent(personId));
+      if(selected?.id!==personId || $('#chatPanel').hidden)return;
+      $('#chatTitle').textContent=text('chat')+' · '+selected.name+(status.typing?' · 對方輸入中…':'');
+      const incoming=rows.filter(m=>m.recipient_id===current.id&&!m.is_read);
+      if(incoming.length&&!document.hidden&&document.hasFocus()){
+        await signal({peer:personId,seen:incoming.at(-1).id});
+        const ids=new Set(incoming.map(m=>'dm:'+current.id+':'+m.id));notifications.forEach(n=>{if(ids.has(n.id))n.read=true});saveNotify();
+      }
       $('#chatThread').scrollTop = $('#chatThread').scrollHeight;
     } catch (error) { $('#chatThread').innerHTML = `<div class="chatEmpty">${safe(error.message)}</div>`; }
   }

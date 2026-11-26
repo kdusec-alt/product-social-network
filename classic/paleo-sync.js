@@ -77,7 +77,7 @@
         model:p.model,color:p.color,title:p.title,time:p.time,read:false});
       existing.add(p.id);changed=true;
     }
-    if(changed) saveNotify();
+    if(changed){saveNotify();if(ready)window.chatChime?.()}
   }
   async function refresh(applyChanges=false){
     if(!ready||busy||document.hidden)return;
