@@ -69,7 +69,14 @@
       sessionStorage.setItem('mrcDemoSession', JSON.stringify(activeUser));
       applyAccount();
       window.dispatchEvent(new Event("profileIdentity"));
-      await refreshPeople();
+      try {
+        await refreshPeople();
+      } catch (error) {
+        // Member/profile storage failures do not invalidate a verified session.
+        const list = $('#memberList');
+        if (list) list.textContent = error.message;
+        toast(error.message);
+      }
     } catch {
       current = null;
       window.verifiedWatermarkAccount='';activeUser = null;
