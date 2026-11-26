@@ -37,9 +37,20 @@
       return `<button class="chatRecent" type="button" data-chat-person="${safe(id)}"><b>${safe(person.nickname || person.name)}</b><small>${safe(message.body).slice(0,90)}</small><time>${safe(new Date(message.created_at).toLocaleString())}</time></button>`;
     }).join('') : ''}`;
   }
+  window.openBellChat = openPerson;
   async function refreshRecent() {
     if (!current) return;
     const rows = await api('/api/messages');
+    const keys = new Set(notifications.map(n => n.id));
+    let added = false;
+    for (const message of rows.slice().reverse()) {
+      const id = 'dm:' + current.id + ':' + message.id;
+      if (message.recipient_id !== current.id || keys.has(id)) continue;
+      notifications.unshift({id, recipient:activePersona, actor:message.sender_name, chatSender:message.sender_id,
+        title:text('chat'), model:'', color:'', time:new Date(message.created_at).toLocaleString(), read:false});
+      added = true;
+    }
+    if (added) saveNotify();
     const seen = new Set();
     recent = rows.filter(message => {
       const id = message.sender_id === current.id ? message.recipient_id : message.sender_id;

@@ -67,11 +67,24 @@
   updates.type='button';updates.className='quick';updates.hidden=true;
   updates.textContent='有新動態，點此更新';
   document.querySelector('#posts').before(updates);
+  function detectMentions(records) {
+    const names = new Set([activePersona, activeUnit, activeUser?.name, activeUser?.account, identity?.name, identity?.unit].filter(Boolean).map(x=>x.toLowerCase()));
+    const existing = new Set(notifications.filter(n=>isMine(n.recipient)).map(n=>n.postId));
+    let changed=false;
+    for (const {data:p} of records) {
+      if(existing.has(p.id) || !(p.tagRefs||[]).some(t=>t.marker==='@' && names.has(String(t.name).toLowerCase()))) continue;
+      notifications.unshift({id:'mention:'+identity.id+':'+p.id, recipient:activePersona, actor:p.author, postId:p.id,
+        model:p.model,color:p.color,title:p.title,time:p.time,read:false});
+      existing.add(p.id);changed=true;
+    }
+    if(changed) saveNotify();
+  }
   async function refresh(applyChanges=false){
     if(!ready||busy||document.hidden)return;
     busy=true;
     try {
       const rows=await Promise.all([remote('projects'),remote('posts')]);
+      detectMentions(rows[1]);
       const kinds=['projects','posts'];
       const changed=kinds.some((kind,i)=>rows[i].length!==known[kind].size||
         rows[i].some(row=>known[kind].get(row.id)!==JSON.stringify(row.data)));
@@ -89,6 +102,7 @@
       const response=await fetch(new URL('../api/me',location.href),{credentials:'same-origin'});if(!response.ok)return;
       identity=(await response.json()).user;
       const [projects,postRows]=await Promise.all([remote('projects'),remote('posts')]);
+      detectMentions(postRows);
       const localProjects=[...readinessProjects],localPosts=[...posts];
       apply('projects',projects);apply('posts',postRows);ready=true;
       if(identity.role==='admin'){
@@ -102,5 +116,5 @@
   }
   window.addEventListener('classicPostsChanged',flush);
   window.addEventListener('classicProjectsChanged',flush);
-  start();setInterval(refresh,300000);
+  start();setInterval(refresh,30000);
 })();

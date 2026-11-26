@@ -103,11 +103,11 @@ render = () => {
   profile.innerHTML = activeUser
     ? '<span class="avatar">' + esc(activeUser.initials) + '</span><div><b>' +
       esc(activeUser.name) + '</b><div>' + esc(activeUser.unit) + '</div></div>' : '';
-  const mode = feedModes.get(activeUser?.account) || 'personal';
+  const mode = feedModes.get(activeUser?.account) || 'all';
   const options = [
-    ['personal', paleoLabel('為你推薦', 'For you', 'Dành cho bạn')],
+    ['all', paleoLabel('全部動態', 'All activity', 'Tất cả hoạt động')],
     ['related', paleoLabel('與我相關', 'Relevant to me', 'Liên quan đến tôi')],
-    ['all', paleoLabel('全部動態', 'All activity', 'Tất cả hoạt động')]
+    ['personal', paleoLabel('為你推薦', 'For you', 'Dành cho bạn')]
   ];
   bar.innerHTML = options.map(([key, label]) =>
     '<button type="button" data-feed-mode="' + key + '" aria-pressed="' + (mode === key) + '">' + label + '</button>'
@@ -117,7 +117,7 @@ render = () => {
     const tagged = new Set(notifications.filter(n => isMine(n.recipient)).map(n => n.postId));
     const ranked = posts.map(post => ({post, score:feedRelevance(post, tagged)}));
     posts = ranked.filter(item => mode !== 'related' || item.score > 0)
-      .sort((a,b) => b.score - a.score).map(item => item.post);
+      .sort((a,b) => (mode === 'personal' ? Number(Date.now()-Number(String(b.post.id).replace(/^MRC-/,'')) < 86400000)-Number(Date.now()-Number(String(a.post.id).replace(/^MRC-/,'')) < 86400000) : 0) || b.score - a.score).map(item => item.post);
   }
   try { paleoRender(); } finally { posts = original; }
   paleoTracking();
