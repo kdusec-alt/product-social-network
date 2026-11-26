@@ -107,7 +107,13 @@
       const follow=lastPerson!==personId || pane.scrollHeight-pane.clientHeight-oldTop<32;
       lastPerson=personId;
       thread = rows;
-      $('#chatThread').innerHTML = rows.length ? rows.map(message => `<div data-mid="${safe(message.id)}" class="chatBubble ${message.sender_id === current.id ? 'mine' : ''}"><small>${safe(message.sender_name)} · ${new Date(message.created_at).toLocaleString()}</small>${displayBody(message)}${message.sender_id===current.id ? '<small>'+ (message.is_read?'已讀':'未讀取')+'</small>':''}${message.body && message.photo_id ? `<br><a href="/api/message-files/${encodeURIComponent(message.photo_id)}" target="_blank" rel="noopener">${text('photo')}</a>` : ''}</div>`).join('') : `<div class="chatEmpty">${text('noMessages')}</div>`;
+      const markup = rows.length ? rows.map(message => `<div data-mid="${safe(message.id)}" class="chatBubble ${message.sender_id === current.id ? 'mine' : ''}"><small>${safe(message.sender_name)} · ${new Date(message.created_at).toLocaleString()}</small>${displayBody(message)}${message.sender_id===current.id ? '<small>'+ (message.is_read?'已讀':'未讀取')+'</small>':''}${message.body && message.photo_id ? `<a class="chatMedia" href="/api/message-files/${encodeURIComponent(message.photo_id)}" target="_blank" rel="noopener"><img class="chatInline" src="/api/message-files/${encodeURIComponent(message.photo_id)}" alt="${safe(message.photo_name||text('photo'))}"><span hidden>${text('photo')}</span></a>` : ''}</div>`).join('') : `<div class="chatEmpty">${text('noMessages')}</div>`;
+      if(pane._markup!==markup){
+        const oldImages=new Map([...pane.querySelectorAll('img.chatInline')].map(img=>[img.src,img]));
+        const fragment=document.createElement('template');fragment.innerHTML=markup;
+        fragment.content.querySelectorAll('img.chatInline').forEach(img=>{const old=oldImages.get(img.src);if(old)img.replaceWith(old)});
+        pane.replaceChildren(fragment.content);pane._markup=markup;
+      }
       pane.scrollTop=follow?pane.scrollHeight:oldTop;
       const status=await api('/api/messages/typing?with='+encodeURIComponent(personId));
       if(selected?.id!==personId || $('#chatPanel').hidden)return;
@@ -192,18 +198,26 @@
   });
   let lastPerson='',replyId='';
   const form=$('#chatForm'), photo=document.createElement('input'),draft=document.createElement('button');
-  photo.type='file';photo.accept='image/png,image/jpeg,image/webp,image/gif';photo.hidden=true;
+  photo.type='file';photo.accept='image/*';photo.hidden=true;
   draft.type='button';draft.hidden=true;
   function syncDraft(){draft.textContent=[replyId?'引用回覆':'',photo.files[0]?.name].filter(Boolean).join(' · ')+' ×';draft.hidden=!replyId&&!photo.files.length}
   draft.onclick=()=>{replyId='';photo.value='';syncDraft()};photo.onchange=syncDraft;
   function control(label,action){const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=action;form.append(b);return b}
   form.append(photo,draft);
-  const emoji=document.createElement('select');emoji.setAttribute('aria-label','表情符號');
-  for(const value of ['😊','👍','❤️','😂','🙏','🎉','✅','👀','💪','🙂'])emoji.add(new Option(value,value));
-  control('加入表情',()=>{const field=$('#chatMessage');field.setRangeText(emoji.value,field.selectionStart,field.selectionEnd,'end');field.focus()});form.append(emoji);
-  control('📷',()=>photo.click());
-  form.style.flexWrap='wrap';
-  const prefix=/^↩\[([^\]\n]{1,100})\]\n/;
+  const field=$('#chatMessage'), send=form.querySelector('[type=submit]');
+  const entry=document.createElement('div');entry.className='chatEntry';
+  const picker=document.createElement('div');picker.className='chatEmojiGrid';picker.hidden=true;
+  function icon(button,label,glyph){button.className='chatTool';button.textContent=glyph;button.title=label;button.setAttribute('aria-label',label)}
+  const attach=control('',()=>photo.click());icon(attach,'選擇圖片','⊕');
+  const smile=control('',()=>{picker.hidden=!picker.hidden});icon(smile,'表情符號','☺');
+  for(const value of ['😊','👍','❤️','😂','🙏','🎉','✅','👀','💪','🙂','👏','👌']){
+    const b=document.createElement('button');b.type='button';b.textContent=value;b.onclick=()=>{field.setRangeText(value,field.selectionStart,field.selectionEnd,'end');picker.hidden=true;field.focus();updateSend()};picker.append(b);
+  }
+  function updateSend(){icon(send,text('send'),field.value.trim()||photo.files.length?'➤':'👍')}
+  entry.append(field,smile);form.replaceChildren(photo,draft,attach,entry,send,picker);
+  draft.className='chatDraft';field.addEventListener('input',updateSend);photo.addEventListener('change',updateSend);updateSend();
+  $('#chatThread').addEventListener('error',e=>{if(e.target.matches('img.chatInline')){e.target.hidden=true;e.target.nextElementSibling.hidden=false}},true);
+    const prefix=/^↩\[([^\]\n]{1,100})\]\n/;
   function displayBody(m){if(!m.body)return '<i>訊息已收回</i>';const ref=m.body.match(prefix);if(!ref)return safe(m.body);
     const original=thread.find(row=>row.id===ref[1]);return '<blockquote>'+safe(original?.body?.replace(prefix,'').slice(0,90)||'原訊息無法顯示')+'</blockquote>'+safe(m.body.slice(ref[0].length))}
   $('#chatThread').oncontextmenu=async e=>{
@@ -215,14 +229,19 @@
   };
   $('#chatForm')?.addEventListener('submit', async event => {
     event.preventDefault();
-    const body = $('#chatMessage').value.trim();
-    const file=photo.files[0];if ((!body&&!file) || !selected || busy) return;if(file&&file.size>8*1024*1024)return toast('圖片上限 8 MB');
+    const body = $('#chatMessage').value.trim() || (photo.files.length?'':'👍');
+    let file=photo.files[0];if ((!body&&!file) || !selected || busy) return;if(file&&file.size>8*1024*1024)return toast('圖片上限 8 MB');
     busy = true;
     try {
+      if(file && !['image/jpeg','image/png','image/gif','image/webp','image/avif','image/bmp','image/x-icon','image/vnd.microsoft.icon','image/apng'].includes(file.type)){
+        const bitmap=await createImageBitmap(file).catch(()=>{throw Error('此瀏覽器無法解碼這張圖片，請轉成 PNG 或 JPG')});
+        const canvas=document.createElement('canvas');canvas.width=bitmap.width;canvas.height=bitmap.height;canvas.getContext('2d').drawImage(bitmap,0,0);bitmap.close();
+        const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob||blob.size>8388608)throw Error('轉換後圖片超過上限或無法解碼');file=new File([blob],file.name+'.png',{type:'image/png'});
+      }
       const created=await api('/api/messages', {method:'POST', body:JSON.stringify({to:selected.id, body:(replyId?'↩['+replyId+']\n':'')+(body||'📷')})});
       if(file){const res=await fetch('/api/messages/'+encodeURIComponent(created.id)+'/photo?name='+encodeURIComponent(file.name),{method:'POST',headers:{'content-type':file.type},body:file});if(!res.ok){await api('/api/messages/'+encodeURIComponent(created.id)+'/recall',{method:'POST'});throw Error('圖片上傳失敗')}}
       replyId='';photo.value='';syncDraft();
-      $('#chatMessage').value = '';
+      $('#chatMessage').value = '';updateSend();
       busy = false;
       await refreshThread();
       await refreshRecent();
@@ -260,7 +279,7 @@
     if ($('#chatPanel') && !selected) $('#chatTitle').textContent = text('chat');
     if ($('#chatSearch')) { $('#chatSearch').placeholder = text('search'); $('#chatSearch').setAttribute('aria-label', text('search')); }
     if ($('#chatMessage')) $('#chatMessage').placeholder = text('message');
-    const send = $('#chatForm button'); if (send) send.textContent = text('send');
+    updateSend();
     const membersHeading = $('#membersArea h2'); if (membersHeading) membersHeading.textContent = text('membersTitle');
     if ($('#memberSearch')) { $('#memberSearch').placeholder = text('search'); $('#memberSearch').setAttribute('aria-label', text('search')); }
   }

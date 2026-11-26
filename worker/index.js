@@ -277,7 +277,7 @@ async function handleApi(request,env,url) {
   const dmPhotoPath=path.match(/^\/api\/messages\/([^/]+)\/photo$/);
   if(dmPhotoPath && method==='POST') {
     const message=await env.DB.prepare('SELECT id FROM direct_messages WHERE id=? AND sender_id=?').bind(dmPhotoPath[1],user.id).first();if(!message)return err('找不到可附加照片的訊息',404);
-    const mime=s(request.headers.get('content-type'),100),size=Number(request.headers.get('content-length')||0);if(!['image/jpeg','image/png','image/webp','image/gif'].includes(mime)||size>8*1024*1024)return err('請上傳 8 MB 以下 JPG、PNG、WebP 或 GIF 照片');const raw=await request.arrayBuffer();if(raw.byteLength>8*1024*1024)return err('檔案太大');
+    const mime=s(request.headers.get('content-type'),100),size=Number(request.headers.get('content-length')||0);if(!['image/jpeg','image/png','image/webp','image/gif','image/avif','image/bmp','image/x-icon','image/vnd.microsoft.icon','image/apng'].includes(mime)||size>8*1024*1024)return err('請上傳支援的圖片，最大 8 MB');const raw=await request.arrayBuffer();if(raw.byteLength>8*1024*1024)return err('檔案太大');
     const key=`messages/${message.id}/${id()}`;await env.BUCKET.put(key,raw,{httpMetadata:{contentType:mime}});await env.DB.prepare('INSERT OR REPLACE INTO direct_message_attachments(message_id,user_id,object_key,name,mime,size,created_at) VALUES(?,?,?,?,?,?,?)').bind(message.id,user.id,key,s(url.searchParams.get('name'),180)||'chat-photo',mime,raw.byteLength,now()).run();return json({ok:true});
   }
   const dmFilePath=path.match(/^\/api\/message-files\/([^/]+)$/);
