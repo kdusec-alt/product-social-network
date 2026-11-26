@@ -5,6 +5,15 @@
   let ready = false, busy = false, queued = false, identity = null;
   const local = kind => kind === 'posts' ? posts : readinessProjects;
   const store = kind => localStorage.setItem(kind === 'posts' ? 'mrcDemoPosts' : readyKey, JSON.stringify(local(kind)));
+  let lastSyncError='',lastSyncErrorAt=0;
+  function reportSyncError(error) {
+    console.warn('VP sync:',error.message);
+    if(lastSyncError!==error.message||Date.now()-lastSyncErrorAt>30000){
+      lastSyncError=error.message;lastSyncErrorAt=Date.now();
+      const prefix=uiLang==='en'?'Not synced: ':uiLang==='vi'?'Chưa đồng bộ: ':'尚未同步：';
+      toast(prefix+error.message);
+    }
+  }
   async function request(path,options) {
     const response=await fetch(base+path,{credentials:'same-origin',...options});
     const data=await response.json().catch(()=>({}));
@@ -47,10 +56,10 @@
         const record=await request('/'+kind+'/'+encodeURIComponent(item.id),{method:'PUT',headers:{'content-type':'application/json'},body:text});
         cache.set(item.id,JSON.stringify(record.data));
         if(kind==='posts'&&JSON.stringify(record.data)!==text)Object.assign(item,record.data);
-      } catch(error) { console.warn('VP sync:',error.message); }
+      } catch(error) { reportSyncError(error); }
     }
     if(kind==='posts')for(const id of [...cache.keys()])if(!items.some(item=>item.id===id)){
-      try {await request('/posts/'+encodeURIComponent(id),{method:'DELETE'});cache.delete(id)}catch(error){console.warn('VP sync:',error.message)}
+      try {await request('/posts/'+encodeURIComponent(id),{method:'DELETE'});cache.delete(id)}catch(error){reportSyncError(error)}
     }
   }
   async function flush(){if(!ready)return;if(busy){queued=true;return}busy=true;try{do{queued=false;await flushKind('projects');await flushKind('posts')}while(queued)}finally{busy=false}}
@@ -89,7 +98,7 @@
         for(const post of localPosts)if(own(post)&&!known.posts.has(post.id)&&!posts.some(p=>p.id===post.id))posts.push(post);
       }
       await flush();store('posts');store('projects');render();
-    }catch(error){console.warn('VP sync startup:',error.message)}
+    }catch(error){reportSyncError(error)}
   }
   window.addEventListener('classicPostsChanged',flush);
   window.addEventListener('classicProjectsChanged',flush);

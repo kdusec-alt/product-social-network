@@ -104,8 +104,8 @@
     },
     {
       "path": "classic/paleo-sync.js",
-      "bytes": 5695,
-      "sha256": "89ba8583b9c454cadaa122d5d52367d7726a1a75d62274a7bb44805c9105fad8"
+      "bytes": 6045,
+      "sha256": "80bae86d3c54727483480955c3e69de2cfefd6639508098a5b4d30bdc0a3ee9b"
     },
     {
       "path": "classic/paleo-timeline.css",
@@ -179,8 +179,8 @@
     },
     {
       "path": "package.json",
-      "bytes": 413,
-      "sha256": "a20c92f5a02c660f49f25842f15b0caed36735d7352ad9b2c896c8b0e88e9ee8"
+      "bytes": 276,
+      "sha256": "9e3dd468ab1f398923a65a87f494fe73e8d09adfa216e3d258c95058e107331e"
     },
     {
       "path": "scripts/server.mjs",
@@ -201,6 +201,11 @@
       "path": "tests/backend.test.mjs",
       "bytes": 7735,
       "sha256": "02770da33fccbaa1b1943ac20bc89b5d2b1597f70de4d606b7b640303d624be8"
+    },
+    {
+      "path": "tests/run.mjs",
+      "bytes": 396,
+      "sha256": "24c65060cc8682f5e91fd239b926bec96e17823e6d31146073ea1862cfcabe58"
     },
     {
       "path": "tests/runtime.test.mjs",
