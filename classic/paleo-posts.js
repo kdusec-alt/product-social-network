@@ -30,16 +30,51 @@ $('#posts').addEventListener('click', event => {
     if (!post) return;
     const dialog = document.createElement('dialog');
     dialog.className = 'mailGalleryDialog';
+    const watermarkName = String(activeUser && window.verifiedWatermarkAccount || '').trim();
+    const watermark = () => {
+      const layer = document.createElement('div');
+      layer.className = 'mailGalleryWatermark';
+      layer.setAttribute('aria-hidden', 'true');
+      for (let i = 0; i < 72; i++) {
+        const label = document.createElement('span');
+        label.textContent = watermarkName;
+        layer.append(label);
+      }
+      return layer;
+    };
     const title = tr('來源郵件附件','Email attachments','Tệp đính kèm') + ' · ' + post.mailAttachments.length;
     dialog.setAttribute('aria-label',title);
     dialog.innerHTML = '<header><strong>'+esc(title)+'</strong><button type="button">'+tr('關閉','Close','Đóng')+'</button></header><div class="mailGalleryGrid">'+post.mailAttachments.map(file=>{
       const caption = '<span>'+esc(file.name)+'</span><small>'+esc(file.mime)+' · '+Math.round((Number(file.size)||0)/1024)+' KB</small>';
       if (!/^[a-zA-Z0-9_-]+$/.test(file.attachmentId||'') || !/^image\//.test(file.mime||'')) return '<div>'+caption+'</div>';
       const url = '../api/classic-attachments/'+encodeURIComponent(file.attachmentId);
-      return '<a target="_blank" rel="noopener" href="'+url+'"><img loading="lazy" alt="" src="'+url+'">'+caption+'</a>';
+      return '<a href="'+url+'" data-mail-photo><img loading="lazy" alt="" src="'+url+'">'+caption+'</a>';
     }).join('')+'</div>';
+    if (watermarkName) dialog.append(watermark());
     document.body.append(dialog);
     dialog.querySelector('button').onclick=()=>dialog.close();
+    dialog.querySelector('.mailGalleryGrid').addEventListener('click', event => {
+      const link = event.target.closest('[data-mail-photo]');
+      if (!link || !watermarkName) return;
+      event.preventDefault();
+      const preview = document.createElement('dialog');
+      preview.className = 'mailGalleryDialog mailPhotoPreview';
+      const header = document.createElement('header');
+      const title = document.createElement('strong');
+      title.textContent = link.querySelector('span')?.textContent || '';
+      const close = document.createElement('button');
+      close.type = 'button';
+      close.textContent = tr('關閉','Close','Đóng');
+      close.onclick = () => preview.close();
+      header.append(title, close);
+      const image = document.createElement('img');
+      image.src = link.href;
+      image.alt = title.textContent;
+      preview.append(header, image, watermark());
+      document.body.append(preview);
+      preview.onclose = () => preview.remove();
+      preview.showModal();
+    });
     dialog.onclose=()=>{dialog.remove();trigger.focus({preventScroll:true})};
     dialog.showModal();
     return;
