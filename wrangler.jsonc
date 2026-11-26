@@ -3,5 +3,13 @@
   "main": "dist/server/index.js",
   "compatibility_date": "2026-11-01",
   "workers_dev": true,
-  "keep_vars": true
+  "keep_vars": true,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "product-social-network-db",
+      "database_id": "1820720f-f1de-465e-8a22-8351fc219778",
+      "migrations_dir": "drizzle"
+    }
+  ]
 }
