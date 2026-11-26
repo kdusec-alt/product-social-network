@@ -38,6 +38,15 @@ function bytesOf(value) {
   if (Array.isArray(value)) return new Uint8Array(value); // D1 BLOB results are byte arrays.
   throw new StorageError('不支援的檔案資料格式',400);
 }
+
+// D1 reports database size in query metadata; its PRAGMA allowlist excludes page_count/page_size.
+export async function databaseSize(db) {
+  if(typeof db.databaseSize==='function')return db.databaseSize();
+  const result=await db.prepare('SELECT 1 AS ok').all();
+  const size=result.meta?.size_after;
+  return Number.isFinite(size)?size:null;
+}
+
 export function createD1Bucket(db) {
   return {
     async get(key) {
@@ -55,9 +64,8 @@ export function createD1Bucket(db) {
       if(new TextEncoder().encode(key).length>512||metadata.length>4096)throw new StorageError('檔案名稱或描述過長',400);
       await initialize(db);
       // Reserve headroom for SQL rows, indexes and SQLite page overhead.
-      const pages=await db.batch([db.prepare('PRAGMA page_count'),db.prepare('PRAGMA page_size')]);
-      const databaseBytes=Number(pages[0].results[0].page_count)*Number(pages[1].results[0].page_size);
-      if(databaseBytes>=DB_WRITE_GUARD)throw new StorageError('測試資料庫已達 400 MiB 寫入保護線，請先匯出並清理資料',507);
+      const databaseBytes=await databaseSize(db);
+      if(databaseBytes!==null&&databaseBytes>=DB_WRITE_GUARD)throw new StorageError('測試資料庫已達 400 MiB 寫入保護線，請先匯出並清理資料',507);
       const size=bytes.byteLength+new TextEncoder().encode(key+metadata).length;
       try {
         await db.prepare(`INSERT INTO storage_objects(key,value,metadata,size,updated_at) VALUES(?,?,?,?,?)
@@ -82,9 +90,9 @@ export function createD1Bucket(db) {
     },
     async stats() {
       await initialize(db);
-      const results=await db.batch([db.prepare('SELECT bytes FROM storage_usage WHERE id=1'),db.prepare('SELECT COUNT(*) AS count FROM storage_objects'),db.prepare('PRAGMA page_count'),db.prepare('PRAGMA page_size')]);
+      const results=await db.batch([db.prepare('SELECT bytes FROM storage_usage WHERE id=1'),db.prepare('SELECT COUNT(*) AS count FROM storage_objects')]);
       return {backend:'d1',objectBytes:results[0].results[0].bytes,objectCount:results[1].results[0].count,
-        databaseBytes:results[2].results[0].page_count*results[3].results[0].page_size,
+        databaseBytes:await databaseSize(db),
         objectLimitBytes:FILE_LIMIT,objectBudgetBytes:OBJECT_BUDGET,databaseWriteGuardBytes:DB_WRITE_GUARD};
     }
   };

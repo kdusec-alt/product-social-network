@@ -70,7 +70,7 @@
           dialog.style.cssText='max-width:480px;width:90%;border:1px solid #dbe4ed;border-radius:12px;padding:24px';
           const title=document.createElement('h3');title.textContent=button.textContent;
           const details=document.createElement('p');details.style.whiteSpace='pre-line';
-          const mib=value=>(Number(value)/1048576).toFixed(2)+' MiB';
+          const mib=value=>value===null?'Unknown':(Number(value)/1048576).toFixed(2)+' MiB';
           const copy=uiLang==='en'?['Stored objects','Database size','Single item limit','Close']:uiLang==='vi'?['Dữ liệu lưu trữ','Dung lượng cơ sở dữ liệu','Giới hạn mỗi mục','Đóng']:['共用物件用量','資料庫用量','單一項目上限','關閉'];
           details.textContent=data.backend==='d1'?`${copy[0]}: ${mib(data.objectBytes)} / ${mib(data.objectBudgetBytes)}\n${copy[1]}: ${mib(data.databaseBytes)}\n${copy[2]}: ${mib(data.objectLimitBytes)}`:'R2';
           const close=document.createElement('button');close.textContent=copy[3];close.onclick=()=>dialog.close();
