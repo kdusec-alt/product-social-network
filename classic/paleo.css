@@ -351,3 +351,21 @@ body[data-theme] #chatLauncher :is(span,.chatIcon){color:inherit!important;fill:
 #chatForm .chatEmojiGrid button{font-size:20px;padding:5px;background:transparent;border:0}
 .chatMedia{display:block;margin-top:5px}.chatInline:not([hidden]){display:block;width:200px;max-width:100%;height:145px;object-fit:contain;border-radius:10px}
 body[data-theme=dark] #chatForm .chatEntry{background:#273342}body[data-theme=dark] #chatForm .chatTool{color:#9bcaff!important}
+
+.right>.card:not(.readyEntryCard){display:none!important}
+.topRight #chatLauncher,.topRight #notifyBell{position:relative!important;inset:auto!important;width:38px;height:38px;border:0;border-radius:50%;padding:0;flex:none;align-items:center;justify-content:center}
+.topRight #chatLauncher span{display:none}
+#notifyBell #notifyCount,#chatLauncher[data-unread]:not([data-unread=""])::after{position:absolute;right:-5px;top:-5px;background:#dbeeff!important;color:#123c62!important;border:1px solid #8fb8db;border-radius:12px;padding:0 5px;font:bold 11px/17px system-ui}
+body[data-theme=dark] #notifyBell{background:#323943;color:#e4f2ff}
+#chatPanel{top:72px;bottom:auto;max-height:calc(100dvh - 84px);border-radius:18px}
+#chatSearch{border-radius:24px;padding-inline:15px}
+.chatFilters:not([hidden]){display:flex;gap:5px;padding:4px 12px}
+.chatFilters button{background:transparent;color:inherit;border:0;border-radius:18px;padding:6px 14px}
+.chatFilters button[aria-pressed=true]{background:#dceeff;color:#174978}
+#chatContacts .chatRecent{position:relative;padding:10px 10px 10px 62px;min-height:58px;border-radius:12px}
+.chatPortrait{position:absolute;left:8px;top:10px;width:42px;height:42px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:#d8eafa;color:#204665}
+.chatPortrait img{width:100%;height:100%;object-fit:cover}
+#chatThread .chatBubble{border-radius:18px;box-shadow:none}
+body[data-theme=dark] #chatPanel{background:#242629;color:#edf1f5}
+body[data-theme=dark] #chatThread .chatBubble{background:#36393f;color:#f4f7fa}
+body[data-theme=dark] #chatThread .chatBubble.mine{background:#334a70;color:#fff}

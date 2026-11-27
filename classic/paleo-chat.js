@@ -27,14 +27,24 @@
     const visible = demos.filter(person => `${person.name} ${person.nickname||''} ${person.unit} ${person.email}`.toLocaleLowerCase().includes(query));
     if ($('#memberList')) $('#memberList').innerHTML = peopleRows(visible, true);
   }
+  const bell=$('#notifyBell');
+  if(bell)bell.before($('#chatLauncher'));
+  let unreadOnly=false;
+  const filters=document.createElement('div');filters.className='chatFilters';
+  $('#chatContacts').before(filters);
+  for(const [i,label] of [paleoLabel('全部','All','Tất cả'),paleoLabel('未讀','Unread','Chưa đọc')].entries()){
+    const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=()=>{unreadOnly=!!i;renderContacts()};filters.append(b)
+  }
   function renderContacts() {
+    filters.hidden=!!selected;
+    [...filters.children].forEach((b,i)=>b.setAttribute('aria-pressed',String(!!i===unreadOnly)));
     const query = ($('#chatSearch')?.value || '').trim().toLocaleLowerCase();
     const visible = people.filter(person => person.id && person.id !== current?.id && person.access_status !== 'invited' && `${person.name} ${person.nickname||''} ${person.unit} ${person.email}`.toLocaleLowerCase().includes(query));
-    if ($('#chatContacts')) $('#chatContacts').innerHTML = query ? peopleRows(visible) : `<p class="chatEmpty">${text('searchStart')}</p>${recent.length ? `<h3 class="chatHistoryTitle">${text('history')}</h3>` + recent.map(message => {
+    if ($('#chatContacts')) $('#chatContacts').innerHTML = query ? peopleRows(visible.filter(p=>!unreadOnly||unread.has(p.id))) : `<p class="chatEmpty">${text('searchStart')}</p>${recent.length ? `<h3 class="chatHistoryTitle">${text('history')}</h3>` + recent.filter(m=>!unreadOnly||unread.has(m.sender_id===current.id?m.recipient_id:m.sender_id)).map(message => {
       const id = message.sender_id === current?.id ? message.recipient_id : message.sender_id;
       const person = people.find(item => item.id === id);
       if (!person) return '';
-      return `<button class="chatRecent" type="button" data-chat-person="${safe(id)}"><b>${safe(person.nickname || person.name)} ${unread.get(id)||''}</b><small>${safe(message.body).slice(0,90)}</small><time>${safe(new Date(message.created_at).toLocaleString())}</time></button>`;
+      return `<button class="chatRecent" type="button" data-chat-person="${safe(id)}"><span class="chatPortrait">${person.avatar?`<img src="${safe(person.avatar)}" alt="">`:initials(person)}</span><b>${safe(person.nickname || person.name)} ${unread.get(id)||''}</b><small>${safe(message.body).slice(0,90)}</small><time>${safe(new Date(message.created_at).toLocaleString())}</time></button>`;
     }).join('') : ''}`;
   }
   let audio, initialized=false, lastTyping=0, unread=new Map();
@@ -86,7 +96,7 @@
   async function openPerson(id) {
     const person = people.find(item => item.id === id);
     if (!person || !current) return;
-    selected = person; replyId=''; photo.value=''; syncDraft(); lastPerson='';
+    filters.hidden=true;selected = person; replyId=''; photo.value=''; syncDraft(); lastPerson='';
     $('#chatPanel').hidden = false;
     $('#chatBack').hidden = false;
     $('#chatSearch').hidden = true;
