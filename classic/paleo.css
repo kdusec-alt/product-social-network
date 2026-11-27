@@ -369,3 +369,12 @@ body[data-theme=dark] #notifyBell{background:#323943;color:#e4f2ff}
 body[data-theme=dark] #chatPanel{background:#242629;color:#edf1f5}
 body[data-theme=dark] #chatThread .chatBubble{background:#36393f;color:#f4f7fa}
 body[data-theme=dark] #chatThread .chatBubble.mine{background:#334a70;color:#fff}
+
+/* Member directory is a standalone view, including after other modules render. */
+body.membersView .main > :not(.heading):not(#membersArea),
+body.membersView .right,
+body.membersView #newPost,
+body.membersView #pageSub { display:none!important; }
+body.membersView #membersArea { display:block!important; }
+body.membersView .layout { grid-template-columns:var(--vp-side-width,225px) minmax(0,1fr); }
+@media(max-width:800px){body.membersView .layout{grid-template-columns:minmax(0,1fr)}}

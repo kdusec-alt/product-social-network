@@ -17,14 +17,14 @@
   }
   function initials(person) { return safe((person.name || '?').trim().slice(0,2).toUpperCase()); }
   function peopleRows(rows, memberOnly = false) {
-    return rows.filter(person => person.id && (memberOnly || person.id !== current?.id) && (!memberOnly || demoIds.has(person.id))).map(person =>
+    return rows.filter(person => person.id && (memberOnly || person.id !== current?.id)).map(person =>
       `<div class="memberRow"><span class="memberAvatar">${person.avatar ? `<img src="${safe(person.avatar)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : initials(person)}</span><span class="memberIdentity"><b>${safe(person.nickname||person.name)}</b><small>${safe(person.unit)}${person.id === current?.id ? ' · '+text('me') : person.access_status === 'invited' ? ' · '+text('invited') : ''}</small></span>${person.id === current?.id ? `<button class="memberChat" type="button" disabled>${text('self')}</button>` : `<button class="memberChat" type="button" data-chat-person="${safe(person.id)}">${text('chatAction')}</button>`}</div>`
     ).join('') || `<p class="chatEmpty">${text('empty')}</p>`;
   }
   function renderMembers() {
     const query = ($('#memberSearch')?.value || '').trim().toLocaleLowerCase();
-    const demos = people.filter(person => demoIds.has(person.id));
-    const visible = demos.filter(person => `${person.name} ${person.nickname||''} ${person.unit} ${person.email}`.toLocaleLowerCase().includes(query));
+    const members = people.filter(person => person.id);
+    const visible = members.filter(person => `${person.name} ${person.nickname||''} ${person.unit} ${person.email}`.toLocaleLowerCase().includes(query));
     if ($('#memberList')) $('#memberList').innerHTML = peopleRows(visible, true);
   }
   const bell=$('#notifyBell');
@@ -304,6 +304,7 @@
       nav.insertBefore(button, nav.children[1] || null);
     }
     const memberView = view === 'members';
+    document.body.classList.toggle('membersView', memberView);
     $('#membersArea')?.classList.toggle('show', memberView);
     if (memberView) {
       $('#pageTitle').textContent = uiLang === 'en' ? 'Member list' : uiLang === 'vi' ? 'Danh sách thành viên' : '成員名單';
